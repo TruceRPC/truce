@@ -1,0 +1,60 @@
+apis:
+  - version: "0"
+    transports:
+      - type: http
+        versions: ["1.0", "1.1", "2"]
+        prefix: "/api/v{{$version}}"
+    functions:
+      - name: GetResources
+        return:
+          name: resources
+          type: "[]Resource"
+        transports:
+          - type: http
+            method: "GET"
+            path: "/resources"
+      - name: GetResource
+        arguments:
+          - name: id
+            type: string
+        return:
+          name: resource
+          type: Resource
+        transports:
+          - type: http
+            method: "GET"
+            path: "/resources/{id}"
+            arguments:
+              - name: id
+                value: "$path.id"
+      - name: PutResource
+        arguments:
+          - name: group_id
+            type: string
+          - name: resource
+            type: PutResourceRequest
+        return:
+          name: resource
+          type: Resource
+        transports:
+          - type: http
+            path: "/group/{group_id}/resources"
+            method: "PUT"
+            arguments:
+              - name: group_id
+                value: "$path.group_id"
+              - name: resource
+                value: "$body"
+    types:
+      - name: Resource
+        fields:
+          - name: id
+            type: string
+          - name: group_id
+            type: string
+          - name: name
+            type: string
+      - name: PutResourceRequest
+        fields:
+          - name: name
+            type: string

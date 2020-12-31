@@ -102,11 +102,11 @@ var tmplFuncs = template.FuncMap{
 		return builder.String()
 	},
 	"path": func(b http.Binding) string {
-		if len(b.PathArgs) == 0 {
-			return `"` + b.PathFmt + `"`
+		if len(b.Path) == 0 {
+			return fmt.Sprintf("%q", b.Path)
 		}
 
-		return fmt.Sprintf(`fmt.Sprintf(%q, %s)`, b.PathFmt, b.PathArgs)
+		return fmt.Sprintf(`fmt.Sprintf(%q, %s)`, b.Path.FmtString(), b.Path.ArgString())
 	},
 	"args": func(f truce.Function) (v string) {
 		for i := range f.Arguments {
@@ -176,9 +176,9 @@ func (c *{{ $ctxt.ClientName }}) {{signature .Function}} {
         resp *http.Response
     )
 
-    {{if ne .BodyArg ""}}buf := &bytes.Buffer{}
+    {{if ne .BodyVar ""}}buf := &bytes.Buffer{}
     body = buf
-    if err = json.NewEncoder(buf).Encode({{.BodyArg}}); err != nil {
+    if err = json.NewEncoder(buf).Encode({{.BodyVar}}); err != nil {
         return
     }{{end}}
 
@@ -212,6 +212,7 @@ var serverTmpl = template.Must(
 
 import (
 "context"
+"encoding/json"
 "net/http"
 
 "github.com/go-chi/chi"
@@ -225,11 +226,13 @@ type Service interface {
 
 type {{.ServerName}} struct {
     chi.Router
+    srv Service
 }
 {{ $ctxt := . }}
-func NewServer() *{{.ServerName}} {
+func NewServer(srv Service) *{{.ServerName}} {
     s := &{{.ServerName}}{
       Router: chi.NewRouter(),
+      srv: srv,
     }
 
     {{ range .Bindings }}s.Router.{{method .}}("{{.Path}}", s.handle{{.Function.Name}})
@@ -240,7 +243,14 @@ func NewServer() *{{.ServerName}} {
 
 {{ range .Bindings }}
 func (c *{{ $ctxt.ServerName }}) handle{{.Function.Name}}(w http.ResponseWriter, r *http.Request) {
-    p0 := chi.URLParam(r, "id")
+    {{range .Path}}{{if eq .Type "variable"}}{{.Var}} := chi.URLParam(r, "{{.Value}}")
+    {{end}}{{end}}
+    {{if ne .BodyVar ""}}var {{.BodyVar}} {{.BodyType}}
+    if err := json.NewDecoder(r.Body).Decode(&{{.BodyVar}}); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    {{end}}
 	r0, err := c.srv.{{.Function.Name}}(r.Context(), {{args .Function}})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

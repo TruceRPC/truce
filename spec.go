@@ -3,10 +3,11 @@ package truce
 import "fmt"
 
 type Specification struct {
-	Versions map[string]API `yaml:"version"`
+	APIs []API `yaml:"apis"`
 }
 
 type API struct {
+	Version    string      `yaml:"version"`
 	Transports []Transport `yaml:"transports"`
 	Functions  []Function  `yaml:"functions"`
 	Types      []Type      `yaml:"types"`
