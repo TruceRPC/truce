@@ -81,6 +81,9 @@ var tmplFuncs = template.FuncMap{
 		}
 		return
 	},
+	"tags": func(f truce.Field) (v string) {
+		return fmt.Sprintf("`json:%q`", f.Name)
+	},
 	"signature": func(f truce.Function) string {
 		builder := &strings.Builder{}
 		fmt.Fprintf(builder, "%s(ctxt context.Context, ", f.Name)
@@ -135,7 +138,7 @@ import (
 
 {{ range $type := .Types }}
 type {{ $type.Name }} struct {
-{{ range $field := $type.Fields }}  {{name .}}   {{.Type}}
+{{ range $field := $type.Fields }}  {{name .}}   {{.Type}} {{tags .}}
 {{ end }}
 }
 {{ end }}`),
