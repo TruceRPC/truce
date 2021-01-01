@@ -1,8 +1,10 @@
 package http
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
+	"text/template"
 
 	"github.com/georgemac/truce"
 )
@@ -12,8 +14,36 @@ type Bindings map[string]*Binding
 func BindingsFrom(api truce.API) Bindings {
 	b := Bindings{}
 
+	var (
+		config truce.HTTP
+		ok     bool
+	)
+	for _, t := range api.Transports {
+		if config, ok = t.Config.(truce.HTTP); ok {
+			break
+		}
+	}
+	if !ok {
+		// set default
+		config = truce.HTTP{Versions: []string{"1.0", "1.1", "2.0"}}
+	}
+
+	tmpl, err := template.New("prefix").Parse(config.Prefix)
+	if err != nil {
+		panic(err)
+	}
+
+	buf := &bytes.Buffer{}
+	if err := tmpl.Execute(buf, api); err != nil {
+		panic(err)
+	}
+
+	config.Prefix = buf.String()
+
 	for _, f := range api.Functions {
-		b[f.Name] = NewBinding(f)
+		if binding := NewBinding(config, f); binding != nil {
+			b[f.Name] = binding
+		}
 	}
 
 	return b
@@ -113,7 +143,20 @@ func (e Element) FmtString() string {
 	}
 }
 
-func NewBinding(function truce.Function) *Binding {
+func NewBinding(config truce.HTTP, function truce.Function) *Binding {
+	var (
+		transport truce.HTTPFunction
+		ok        bool
+	)
+	for _, t := range function.Transports {
+		if transport, ok = t.Config.(truce.HTTPFunction); ok {
+			break
+		}
+	}
+	if !ok {
+		return nil
+	}
+
 	b := &Binding{Function: function}
 
 	type argument struct {
@@ -135,11 +178,6 @@ func NewBinding(function truce.Function) *Binding {
 
 	if function.Return.Name != "" {
 		b.HasReturn = true
-	}
-
-	transport, ok := b.Function.Transports[0].Config.(truce.HTTPFunction)
-	if !ok {
-		panic("unexpected type")
 	}
 
 	b.Method = transport.Method
@@ -174,7 +212,15 @@ func NewBinding(function truce.Function) *Binding {
 		}
 	}
 
-	b.Path = parsePath(pathMappings, transport.Path)
+	for _, part := range strings.Split(config.Prefix, "/") {
+		if part == "" {
+			continue
+		}
+
+		b.Path = append(b.Path, Element{Type: "static", Value: part})
+	}
+
+	b.Path = append(b.Path, parsePath(pathMappings, transport.Path)...)
 
 	return b
 }

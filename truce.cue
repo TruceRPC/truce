@@ -8,7 +8,7 @@ apis: [...#API]
 }
 
 #Transport: {
-	type: string
+	type: "http"
 	versions: [...string]
 	prefix: string
 }

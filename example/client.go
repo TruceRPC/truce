@@ -17,7 +17,7 @@ type Client struct {
 }
 
 func (c *Client) GetResource(ctxt context.Context, v0 string) (rtn Resource, err error) {
-	u, err := c.host.Parse(fmt.Sprintf("/resources/%v", v0))
+	u, err := c.host.Parse(fmt.Sprintf("/api/v0/resources/%v", v0))
 	if err != nil {
 		return
 	}
@@ -48,7 +48,7 @@ func (c *Client) GetResource(ctxt context.Context, v0 string) (rtn Resource, err
 }
 
 func (c *Client) GetResources(ctxt context.Context) (rtn []Resource, err error) {
-	u, err := c.host.Parse(fmt.Sprintf("/resources"))
+	u, err := c.host.Parse(fmt.Sprintf("/api/v0/resources"))
 	if err != nil {
 		return
 	}
@@ -79,7 +79,7 @@ func (c *Client) GetResources(ctxt context.Context) (rtn []Resource, err error) 
 }
 
 func (c *Client) PutResource(ctxt context.Context, v0 string, v1 PutResourceRequest) (rtn Resource, err error) {
-	u, err := c.host.Parse(fmt.Sprintf("/group/%v/resources", v0))
+	u, err := c.host.Parse(fmt.Sprintf("/api/v0/group/%v/resources", v0))
 	if err != nil {
 		return
 	}

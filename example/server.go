@@ -25,9 +25,9 @@ func NewServer(srv Service) *Server {
 		srv:    srv,
 	}
 
-	s.Router.Get("/resources/{id}", s.handleGetResource)
-	s.Router.Get("/resources", s.handleGetResources)
-	s.Router.Put("/group/{group_id}/resources", s.handlePutResource)
+	s.Router.Get("/api/v0/resources/{id}", s.handleGetResource)
+	s.Router.Get("/api/v0/resources", s.handleGetResources)
+	s.Router.Put("/api/v0/group/{group_id}/resources", s.handlePutResource)
 
 	return s
 }
