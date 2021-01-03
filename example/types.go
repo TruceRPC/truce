@@ -2,12 +2,31 @@ package types
 
 import ()
 
-type Resource struct {
-	Id      string `json:"id"`
-	GroupId string `json:"group_id"`
-	Name    string `json:"name"`
+type User struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
 
-type PutResourceRequest struct {
+type PutUserRequest struct {
 	Name string `json:"name"`
+}
+
+type PatchUserRequest struct {
+	Name string `json:"name"`
+}
+
+type Post struct {
+	Id    string `json:"id"`
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
+
+type PutPostRequest struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
+}
+
+type PatchPostRequest struct {
+	Title string `json:"title"`
+	Body  string `json:"body"`
 }

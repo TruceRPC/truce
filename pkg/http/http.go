@@ -14,18 +14,9 @@ type Bindings map[string]*Binding
 func BindingsFrom(api truce.API) Bindings {
 	b := Bindings{}
 
-	var (
-		config truce.HTTP
-		ok     bool
-	)
-	for _, t := range api.Transports {
-		if config, ok = t.Config.(truce.HTTP); ok {
-			break
-		}
-	}
-	if !ok {
-		// set default
-		config = truce.HTTP{Versions: []string{"1.0", "1.1", "2.0"}}
+	config := &truce.HTTP{Versions: []string{"1.0", "1.1", "2.0"}}
+	if api.Transports.HTTP != nil {
+		config = api.Transports.HTTP
 	}
 
 	tmpl, err := template.New("prefix").Parse(config.Prefix)
@@ -143,19 +134,12 @@ func (e Element) FmtString() string {
 	}
 }
 
-func NewBinding(config truce.HTTP, function truce.Function) *Binding {
-	var (
-		transport truce.HTTPFunction
-		ok        bool
-	)
-	for _, t := range function.Transports {
-		if transport, ok = t.Config.(truce.HTTPFunction); ok {
-			break
-		}
-	}
-	if !ok {
+func NewBinding(config *truce.HTTP, function truce.Function) *Binding {
+	if function.Transports.HTTP == nil {
 		return nil
 	}
+
+	transport := *function.Transports.HTTP
 
 	b := &Binding{Function: function}
 

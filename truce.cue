@@ -1,14 +1,15 @@
+package truce
+
 apis: [...#API]
 
 #API: {
 	version: =~"^[0-9]+$" // API Major version
-	transports: [...#Transport]
+	transports?: http?: #HTTP
 	functions: [...#Function]
 	types: [...#Type]
 }
 
-#Transport: {
-	type: "http"
+#HTTP: {
 	versions: [...string]
 	prefix: string
 }
@@ -17,7 +18,7 @@ apis: [...#API]
 	name: =~"^[A-Z][a-zA-Z]*$" // function names are capitalised
 	arguments: [...#Field]
 	return: #Field
-	transports: [...#FunctionTransport]
+	transports?: http?: #HTTPFunction
 }
 
 #Type: {
@@ -34,8 +35,7 @@ apis: [...#API]
 	type: or(#all) | =~"^[A-Z][a-zA-Z]*$" | =~"^[[]][A-Z][a-zA-Z]*?" // can be primitive, CustomType, []primitive or []CustomType. 
 }
 
-#FunctionTransport: {
-	type:   "http"
+#HTTPFunction: {
 	path:   string
 	method: "GET" | "POST" | "PUT" | "PATCH" | "OPTIONS" | "DELETE" | "HEAD" | "CONNECT" | "TRACE"
 	arguments: [...#Argument]

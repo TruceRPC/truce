@@ -1,92 +1,74 @@
 package truce
 
-import "fmt"
+import "cuelang.org/go/cue"
+
+var Runtime = &cue.Runtime{}
 
 type Specification struct {
-	APIs []API `yaml:"apis"`
+	APIs []API `cue:"apis"`
+}
+
+func Unmarshal(data []byte, spec *Specification) error {
+	target, err := Runtime.Compile("target", data)
+	if err != nil {
+		return nil
+	}
+
+	filled, err := cuegenInstance.Fill(target.Value())
+	if err != nil {
+		return err
+	}
+
+	val := filled.Value()
+	if err := val.Err(); err != nil {
+		return err
+	}
+
+	if err := val.Decode(spec); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type API struct {
-	Version    string      `yaml:"version"`
-	Transports []Transport `yaml:"transports"`
-	Functions  []Function  `yaml:"functions"`
-	Types      []Type      `yaml:"types"`
+	Version    string     `cue:"version"`
+	Transports Transport  `cue:"transports"`
+	Functions  []Function `cue:"functions"`
+	Types      []Type     `cue:"types"`
 }
 
 // Transport to be defined at a later date.
 type Transport struct {
-	Type   string      `yaml:"type"`
-	Config interface{} `yaml:"-"`
+	HTTP *HTTP `cue:"http"`
 }
 
-func (t *Transport) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	transport := struct {
-		Type string `yaml:"type"`
-	}{}
-
-	if err := unmarshal(&transport); err != nil {
-		return err
-	}
-
-	t.Type = transport.Type
-
-	switch transport.Type {
-	case "http":
-		var http HTTP
-		if err := unmarshal(&http); err != nil {
-			return err
-		}
-
-		t.Config = http
-	default:
-		return fmt.Errorf("%q transport not supported", transport.Type)
-	}
-
-	return nil
+type HTTP struct {
+	Versions []string `cue:"versions"`
+	Prefix   string   `cue:"prefix"`
 }
 
 type Function struct {
-	Name       string              `yaml:"name"`
-	Arguments  []Field             `yaml:"arguments"`
-	Return     Field               `yaml:"return"`
-	Transports []FunctionTransport `yaml:"transports"`
+	Name       string            `cue:"name"`
+	Arguments  []Field           `cue:"arguments"`
+	Return     Field             `cue:"return"`
+	Transports FunctionTransport `cue:"transports"`
 }
 
 // FunctionTransport to be defined at a later date.
 type FunctionTransport struct {
-	Type   string      `yaml:"type"`
-	Config interface{} `yaml:"-"`
+	HTTP *HTTPFunction `cue:"http"`
 }
 
-func (t *FunctionTransport) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	transport := struct {
-		Type string `yaml:"type"`
-	}{}
-
-	if err := unmarshal(&transport); err != nil {
-		return err
-	}
-
-	t.Type = transport.Type
-
-	switch transport.Type {
-	case "http":
-		var http HTTPFunction
-		if err := unmarshal(&http); err != nil {
-			return err
-		}
-
-		t.Config = http
-	default:
-		return fmt.Errorf("%q transport not supported for function", transport.Type)
-	}
-
-	return nil
+type HTTPFunction struct {
+	Path      string          `cue:"path"`
+	Method    string          `cue:"method"`
+	Arguments []ArgumentValue `cue:"arguments"`
 }
 
 type ArgumentValue struct {
-	Name  string `yaml:"name"`
-	Value string `yaml:"value"`
+	Name  string `cue:"name"`
+	Value string `cue:"value"`
 }
 
 type TypeName string
@@ -98,11 +80,11 @@ const (
 )
 
 type Type struct {
-	Name   string  `yaml:"name"`
-	Fields []Field `yaml:"fields"`
+	Name   string  `cue:"name"`
+	Fields []Field `cue:"fields"`
 }
 
 type Field struct {
-	Name string   `yaml:"name"`
-	Type TypeName `yaml:"type"`
+	Name string   `cue:"name"`
+	Type TypeName `cue:"type"`
 }

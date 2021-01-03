@@ -8,11 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/encoding/yaml"
 	"github.com/georgemac/truce"
 	"github.com/georgemac/truce/pkg/generate"
-	gyaml "gopkg.in/yaml.v2"
 )
 
 var (
@@ -23,33 +20,20 @@ var (
 func main() {
 	flag.Parse()
 
-	truceRaw, err := ioutil.ReadFile("truce.cue")
-	if err != nil {
-		panic(err)
-	}
-
-	var r cue.Runtime
-
-	core, err := r.Compile("truce", truceRaw)
-	if err != nil {
-		panic(err)
-	}
-
 	targetRaw, err := ioutil.ReadFile(*source)
 	if err != nil {
 		panic(err)
 	}
 
+	var spec truce.Specification
+	err = truce.Unmarshal(targetRaw, &spec)
+
 	switch flag.Arg(0) {
 	case "validate", "val":
-		if err := yaml.Validate(targetRaw, core.Value()); err != nil {
+		if err != nil {
 			panic(err)
 		}
 	case "generate", "gen":
-		if err := yaml.Validate(targetRaw, core.Value()); err != nil {
-			panic(err)
-		}
-
 		targets := map[string]io.Writer{
 			"types":  os.Stdout,
 			"client": os.Stdout,
@@ -100,12 +84,6 @@ func main() {
 					targets[target] = f
 				}
 			}
-		}
-
-		var spec truce.Specification
-
-		if err := gyaml.Unmarshal(targetRaw, &spec); err != nil {
-			panic(err)
 		}
 
 		var generator func(truce.API) error
