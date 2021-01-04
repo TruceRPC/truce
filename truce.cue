@@ -5,8 +5,8 @@ apis: [...#API]
 #API: {
 	version: =~"^[0-9]+$" // API Major version
 	transports?: http?: #HTTP
-	functions: [...#Function]
-	types: [...#Type]
+	functions: [n=_]:   #Function & {"name": n}
+	types: [n=_]:       #Type & {"name":     n}
 }
 
 #HTTP: {
@@ -23,7 +23,7 @@ apis: [...#API]
 
 #Type: {
 	name: =~"^[A-Z][a-zA-Z]*$" // type names are capitalised
-	fields: [...#Field]
+	fields: [n=_]: #Field & {"name": n}
 }
 
 #primitives: ["bool", "int", "float", "byte", "string"]
@@ -38,7 +38,7 @@ apis: [...#API]
 #HTTPFunction: {
 	path:   string
 	method: "GET" | "POST" | "PUT" | "PATCH" | "OPTIONS" | "DELETE" | "HEAD" | "CONNECT" | "TRACE"
-	arguments: [...#Argument]
+	arguments: [n=_]: #Argument & {"name": n}
 }
 
 #Argument: {

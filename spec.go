@@ -32,10 +32,10 @@ func Unmarshal(data []byte, spec *Specification) error {
 }
 
 type API struct {
-	Version    string     `cue:"version"`
-	Transports Transport  `cue:"transports"`
-	Functions  []Function `cue:"functions"`
-	Types      []Type     `cue:"types"`
+	Version    string              `cue:"version"`
+	Transports Transport           `cue:"transports"`
+	Functions  map[string]Function `cue:"functions"`
+	Types      map[string]Type     `cue:"types"`
 }
 
 // Transport to be defined at a later date.
@@ -61,9 +61,9 @@ type FunctionTransport struct {
 }
 
 type HTTPFunction struct {
-	Path      string          `cue:"path"`
-	Method    string          `cue:"method"`
-	Arguments []ArgumentValue `cue:"arguments"`
+	Path      string                   `cue:"path"`
+	Method    string                   `cue:"method"`
+	Arguments map[string]ArgumentValue `cue:"arguments"`
 }
 
 type ArgumentValue struct {
@@ -80,8 +80,8 @@ const (
 )
 
 type Type struct {
-	Name   string  `cue:"name"`
-	Fields []Field `cue:"fields"`
+	Name   string           `cue:"name"`
+	Fields map[string]Field `cue:"fields"`
 }
 
 type Field struct {

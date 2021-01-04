@@ -2,13 +2,9 @@ package types
 
 import ()
 
-type User struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
-}
-
-type PutUserRequest struct {
-	Name string `json:"name"`
+type PatchPostRequest struct {
+	Body  string `json:"body"`
+	Title string `json:"title"`
 }
 
 type PatchUserRequest struct {
@@ -16,17 +12,21 @@ type PatchUserRequest struct {
 }
 
 type Post struct {
+	Body  string `json:"body"`
 	Id    string `json:"id"`
 	Title string `json:"title"`
-	Body  string `json:"body"`
 }
 
 type PutPostRequest struct {
-	Title string `json:"title"`
 	Body  string `json:"body"`
+	Title string `json:"title"`
 }
 
-type PatchPostRequest struct {
-	Title string `json:"title"`
-	Body  string `json:"body"`
+type PutUserRequest struct {
+	Name string `json:"name"`
+}
+
+type User struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }

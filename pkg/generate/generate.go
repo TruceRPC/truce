@@ -16,7 +16,7 @@ func GenerateTypes(w io.Writer, api truce.API) error {
 	context := struct {
 		Package string
 		Imports string
-		Types   []truce.Type
+		Types   map[string]truce.Type
 	}{
 		Package: "types",
 		Imports: "",

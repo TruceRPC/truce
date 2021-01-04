@@ -1,22 +1,16 @@
 import "strings"
 
-import "list"
-
-#resources: [
-	{
-		name: "User"
-		fields: [
-			{name: "name", type: "string"},
-		]
-	},
-	{
-		name: "Post"
-		fields: [
-			{name: "title", type: "string"},
-			{name: "body", type:  "string"},
-		]
-	},
-]
+#resources: {
+	"User": {
+		fields: name: type: "string"
+	}
+	"Post": {
+		fields: {
+			title: type: "string"
+			body: type:  "string"
+		}
+	}
+}
 
 apis: [
 	{
@@ -27,109 +21,97 @@ apis: [
 				prefix: "/api/v\(version)"
 			}
 		}
-		functions: list.FlattenN([ for resource in #resources {
-			[ {
-				name: "Get\(resource.name)"
-				arguments: [
-					{
-						name: "id"
-						type: "string"
-					},
-				]
-				return: {
-					name: strings.ToLower(resource.name)
-					type: resource.name
-				}
-				transports: http: {
-					path:   strings.Join(["", strings.ToLower(resource.name) + "s", "{id}"], "/")
-					method: "GET"
-					arguments: [{
-						name:  "id"
-						value: "$path.id"
-					}]
-				}
-			},
-				{
-					name: "Get\(resource.name)s"
+		functions: {
+			for resourceName, resource in #resources {
+				"Get\(resourceName)": {
+					arguments: [
+						{name: "id", type: "string"},
+					]
 					return: {
-						name: "\(strings.ToLower(resource.name))s"
-						type: "[]\(resource.name)"
+						name: "\(strings.ToLower(resourceName))"
+						type: resourceName
 					}
 					transports: http: {
-						path:   strings.Join(["", strings.ToLower(resource.name) + "s"], "/")
+						path:   "\(strings.ToLower(resourceName))s/{id}"
+						method: "GET"
+						arguments: id: value: "$path.id"
+					}
+				}
+				"Get\(resourceName)s": {
+					return: {
+						name: "\(strings.ToLower(resourceName))s"
+						type: "[]\(resourceName)"
+					}
+					transports: http: {
+						path:   "\(strings.ToLower(resourceName))s"
 						method: "GET"
 					}
-				},
-				{
-					name: "Put\(resource.name)"
+				}
+				"Put\(resourceName)": {
 					arguments: [
-						{
-							name: strings.ToLower(resource.name)
-							type: "Put\(resource.name)Request"
-						},
+						{name: "\(strings.ToLower(resourceName))", type: "Put\(resourceName)Request"},
 					]
 					return: {
-						name: strings.ToLower(resource.name)
-						type: resource.name
+						name: "\(strings.ToLower(resourceName))"
+						type: resourceName
 					}
 					transports: http: {
-						path:   strings.Join(["", strings.ToLower(resource.name) + "s"], "/")
+						path:   "/\(strings.ToLower(resourceName))s"
 						method: "PUT"
-						arguments: [{
-							name:  strings.ToLower(resource.name)
-							value: "$body"
-						}]
+						arguments: "\(strings.ToLower(resourceName))": value: "$body"
 					}
-				},
-				{
-					name: "Patch\(resource.name)"
+				}
+				"Patch\(resourceName)": {
 					arguments: [
-						{
-							name: "id"
-							type: "string"
-						},
-						{
-							name: strings.ToLower(resource.name)
-							type: "Patch\(resource.name)Request"
-						},
+						{name: "id", type:                               "string"},
+						{name: "\(strings.ToLower(resourceName))", type: "Patch\(resourceName)Request"},
 					]
 					return: {
-						name: strings.ToLower(resource.name)
-						type: resource.name
+						name: "\(strings.ToLower(resourceName))"
+						type: resourceName
 					}
 					transports: http: {
-						path:   strings.Join(["", strings.ToLower(resource.name) + "s", "{id}"], "/")
+						path:   "/\(strings.ToLower(resourceName))s/{id}"
 						method: "PATCH"
-						arguments: [
-							{
-								name:  "id"
-								value: "$path.id"
-							},
-							{
-								name:  strings.ToLower(resource.name)
-								value: "$body"
-							}]
+						arguments: {
+							id: value:                                 "$path.id"
+							"\(strings.ToLower(resourceName))": value: "$body"
+						}
 					}
-				},
-			]},
-		], 1)
-		types: list.FlattenN([ for resource in #resources {
-			[
-				{
-					name:   resource.name
-					fields: [
-						{name: "id", type: "string"},
-					] + resource.fields
-				},
-				{
-					name:   "Put\(resource.name)Request"
-					fields: resource.fields
-				},
-				{
-					name:   "Patch\(resource.name)Request"
-					fields: resource.fields
-				},
-			]},
-		], 1)
+				}
+			}
+		}
+		types: {
+			for resourceName, resource in #resources {
+				"\(resourceName)": {
+					fields: {
+						id: type: "string"
+						for k, v in resource.fields {
+							"\(k)": {
+								for k1, v1 in v {"\(k1)": v1}
+							}
+						}
+					}
+				}
+				"Put\(resourceName)Request": {
+					fields: {
+						for k, v in resource.fields {
+							"\(k)": {
+								for k1, v1 in v {"\(k1)": v1}
+							}
+						}
+					}
+				}
+				"Patch\(resourceName)Request": {
+					fields: {
+						for k, v in resource.fields {
+							"\(k)": {
+								for k1, v1 in v {"\(k1)": v1}
+							}
+						}
+					}
+				}
+			}
+		}
 	},
 ]
