@@ -5,7 +5,7 @@ import "cuelang.org/go/cue"
 var Runtime = &cue.Runtime{}
 
 type Specification struct {
-	APIs []API `cue:"apis"`
+	Specifications map[string]API `cue:"specifications"`
 }
 
 func Unmarshal(data []byte, spec *Specification) error {
@@ -68,6 +68,8 @@ type HTTPFunction struct {
 
 type ArgumentValue struct {
 	Name  string `cue:"name"`
+	From  string `cue:"from"`
+	Var   string `cue:"var"`
 	Value string `cue:"value"`
 }
 

@@ -12,9 +12,9 @@ import "strings"
 	}
 }
 
-apis: [
-	{
-		version: "1"
+specifications: {
+	let version = "1"
+	"\(version)": {
 		transports: {
 			http: {
 				versions: ["1.0", "1.1", "2.0"]
@@ -32,9 +32,9 @@ apis: [
 						type: resourceName
 					}
 					transports: http: {
-						path:   "\(strings.ToLower(resourceName))s/{id}"
-						method: "GET"
-						arguments: id: value: "$path.id"
+						path:                 "\(strings.ToLower(resourceName))s/{id}"
+						method:               "GET"
+						arguments: id: {from: "path", var: "id"}
 					}
 				}
 				"Get\(resourceName)s": {
@@ -58,7 +58,7 @@ apis: [
 					transports: http: {
 						path:   "/\(strings.ToLower(resourceName))s"
 						method: "PUT"
-						arguments: "\(strings.ToLower(resourceName))": value: "$body"
+						arguments: "\(strings.ToLower(resourceName))": from: "body"
 					}
 				}
 				"Patch\(resourceName)": {
@@ -74,8 +74,8 @@ apis: [
 						path:   "/\(strings.ToLower(resourceName))s/{id}"
 						method: "PATCH"
 						arguments: {
-							id: value:                                 "$path.id"
-							"\(strings.ToLower(resourceName))": value: "$body"
+							id: {from: "path", var: "id"}
+							"\(strings.ToLower(resourceName))": from: "body"
 						}
 					}
 				}
@@ -113,5 +113,5 @@ apis: [
 				}
 			}
 		}
-	},
-]
+	}
+}

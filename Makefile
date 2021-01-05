@@ -1,10 +1,10 @@
 .PHONY: deps
-deps: # download dependencies
+deps: ## Download dependencies
 	@go mod download
 	@go get cuelang.org/go/cue
 
 .PHONY: build
-build: # build truce into bin folder
+build: trucegen ## Build truce into bin folder
 	@mkdir -p bin
 	go build -o bin/truce ./cmd/truce/...
 

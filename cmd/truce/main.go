@@ -26,13 +26,14 @@ func main() {
 	}
 
 	var spec truce.Specification
-	err = truce.Unmarshal(targetRaw, &spec)
+
+	if err = truce.Unmarshal(targetRaw, &spec); err != nil {
+		panic(err)
+	}
 
 	switch flag.Arg(0) {
 	case "validate", "val":
-		if err != nil {
-			panic(err)
-		}
+		break
 	case "generate", "gen":
 		targets := map[string]io.Writer{
 			"types":  os.Stdout,
@@ -115,8 +116,10 @@ func main() {
 			os.Exit(2)
 		}
 
-		if err := generator(spec.APIs[0]); err != nil {
-			panic(err)
+		for _, api := range spec.Specifications {
+			if err := generator(api); err != nil {
+				panic(err)
+			}
 		}
 	default:
 		fmt.Printf("unexpected sub-command: %q\n", flag.Arg(0))

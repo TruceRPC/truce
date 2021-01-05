@@ -44,6 +44,7 @@ type Binding struct {
 	Function  truce.Function
 	Method    string
 	Path      Path
+	Query     map[string]string
 	BodyVar   string
 	BodyType  string
 	HasReturn bool
@@ -141,7 +142,7 @@ func NewBinding(config *truce.HTTP, function truce.Function) *Binding {
 
 	transport := *function.Transports.HTTP
 
-	b := &Binding{Function: function}
+	b := &Binding{Function: function, Query: map[string]string{}}
 
 	type argument struct {
 		variable string
@@ -167,32 +168,30 @@ func NewBinding(config *truce.HTTP, function truce.Function) *Binding {
 	b.Method = transport.Method
 
 	for _, arg := range transport.Arguments {
-		if len(arg.Value) == 0 {
-			continue
-		}
+		a, ok := args[arg.Name]
 
-		if arg.Value[0] != '$' {
-			continue
-		}
-
-		target := arg.Value
-		n := strings.Index(target, ".")
-		if n > 0 {
-			target = target[:n]
-		}
-
-		switch target {
-		case "$body":
-			if a, ok := args[arg.Name]; ok {
-				b.BodyVar = a.variable
-				b.BodyType = a.typ
+		switch arg.From {
+		case "body":
+			if !ok {
+				continue
 			}
-		case "$path":
-			// given a path variable is targetted
-			// create reverse lookup entry in path map
-			if len(arg.Value) > n {
-				pathMappings[arg.Value[n+1:]] = args[arg.Name].variable
+
+			b.BodyVar = a.variable
+			b.BodyType = a.typ
+		case "path":
+			if !ok {
+				continue
 			}
+
+			pathMappings[arg.Var] = args[arg.Name].variable
+		case "query":
+			if !ok {
+				continue
+			}
+
+			b.Query[arg.Var] = args[arg.Name].variable
+		case "static":
+			// TODO(georgemac)
 		}
 	}
 

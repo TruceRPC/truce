@@ -174,6 +174,10 @@ func (c *{{ $ctxt.ClientName }}) {{signature .Function}} {
         return
     }
 
+    {{if ne (len .Query) 0}}query := u.Query()
+    {{range $k, $v := .Query}}query.Set("{{$k}}", {{$v}})
+    {{end}}u.RawQuery = query.Encode(){{end}}
+
     var (
         body io.Reader
         resp *http.Response
@@ -248,6 +252,8 @@ func NewServer(srv Service) *{{.ServerName}} {
 func (c *{{ $ctxt.ServerName }}) handle{{.Function.Name}}(w http.ResponseWriter, r *http.Request) {
     {{range .Path}}{{if eq .Type "variable"}}{{.Var}} := chi.URLParam(r, "{{.Value}}")
     {{end}}{{end}}
+    {{range $k, $v := .Query}}{{$v}} := r.URL.Query().Get("{{$k}}")
+    {{end}}
     {{if ne .BodyVar ""}}var {{.BodyVar}} {{.BodyType}}
     if err := json.NewDecoder(r.Body).Decode(&{{.BodyVar}}); err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -1,6 +1,6 @@
 package truce
 
-apis: [...#API]
+specifications: [v=string]: #API & {version: v}
 
 #API: {
 	version: =~"^[0-9]+$" // API Major version
@@ -42,6 +42,17 @@ apis: [...#API]
 }
 
 #Argument: {
+	name: string
+	from: "body"
+} | {
+	name: string
+	from: "path"
+	var:  string
+} | {
+	name: string
+	from: "query"
+	var:  string
+} | {
 	name:  string
-	value: "$body" | =~"^[$]path[.].+$" | =~"^[^$]?.*$" // can be a constant or $body or $path.var
+	value: string
 }
