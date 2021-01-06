@@ -32,7 +32,7 @@ specifications: [v=string]: #API & {version: v}
 
 #Field: {
 	name: string
-	type: or(#all) | =~"^[A-Z][a-zA-Z]*$" | =~"^[[]][A-Z][a-zA-Z]*?" // can be primitive, CustomType, []primitive or []CustomType. 
+	type: or(#all) | =~"^[*]?[A-Z][a-zA-Z]*$" | =~"^[[]][*]?[A-Z][a-zA-Z]*?" // can be primitive, Custom, *Custom, []primitive, []Custom, []*Custom.
 }
 
 #HTTPFunction: {

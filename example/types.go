@@ -1,7 +1,5 @@
 package types
 
-import ()
-
 type PatchPostRequest struct {
 	Body  string `json:"body"`
 	Title string `json:"title"`
