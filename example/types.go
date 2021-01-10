@@ -1,6 +1,8 @@
-package types
+package example
 
-import ()
+type Foo struct {
+	Name map[string]User `json:"name"`
+}
 
 type PatchPostRequest struct {
 	Body  string `json:"body"`

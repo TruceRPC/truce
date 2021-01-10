@@ -54,7 +54,7 @@ As mentioned under [usage](#Usage) the [./example](./example) directory contains
 
 In particular try running go run [example/cmd/main.go](./example/cmd/main.go).
 
-This runs a small web server which can be pinged on port 8080. This example server exercises the generated resources defined in the [service definition](./exampe/service.cue).
+This runs a small web server which can be pinged on port 8080. This example server exercises the generated resources defined in the [service definition](./example/service.cue).
 
 > The following demo requires `curl` and `jq`
 

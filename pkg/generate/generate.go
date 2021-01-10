@@ -12,50 +12,56 @@ import (
 	"github.com/georgemac/truce/pkg/http"
 )
 
-func GenerateTypes(w io.Writer, api truce.API) error {
-	context := struct {
-		Package string
-		Imports string
-		Types   map[string]truce.Type
-	}{
-		Package: "types",
-		Imports: "",
-		Types:   api.Types,
-	}
+type Generator struct {
+	api truce.API
 
-	return writeGo(w, typeTmpl, context)
+	context context
 }
 
-func GenerateClient(w io.Writer, api truce.API) error {
-	context := struct {
-		Package    string
-		Imports    string
-		ClientName string
-		Bindings   http.Bindings
-	}{
-		Package:    "types",
-		Imports:    "",
-		ClientName: "Client",
-		Bindings:   http.BindingsFrom(api),
-	}
-
-	return writeGo(w, clientTmpl, context)
+type context struct {
+	Package    string
+	Imports    string
+	ClientName string
+	ServerName string
+	Types      map[string]truce.Type
+	Bindings   http.Bindings
 }
 
-func GenerateServer(w io.Writer, api truce.API) error {
-	context := struct {
-		Package    string
-		Imports    string
-		ServerName string
-		Bindings   http.Bindings
-	}{
-		Package:    "types",
-		Imports:    "",
-		ServerName: "Server",
-		Bindings:   http.BindingsFrom(api),
+func New(api truce.API, opts ...Option) (Generator, error) {
+	bindings, err := http.BindingsFrom(api)
+	if err != nil {
+		return Generator{}, err
 	}
 
-	return writeGo(w, serverTmpl, context)
+	g := Generator{
+		api: api,
+		context: context{
+			Package:    "types",
+			ClientName: "Client",
+			ServerName: "Server",
+			Types:      api.Types,
+			Bindings:   bindings,
+		},
+	}
+
+	Options(opts).Apply(&g)
+
+	return g, nil
+}
+
+func (g Generator) WriteTypesTo(w io.Writer, opts ...Option) error {
+	Options(opts).Apply(&g)
+	return writeGo(w, typeTmpl, g.context)
+}
+
+func (g Generator) WriteClientTo(w io.Writer, opts ...Option) error {
+	Options(opts).Apply(&g)
+	return writeGo(w, clientTmpl, g.context)
+}
+
+func (g Generator) WriteServerTo(w io.Writer, opts ...Option) error {
+	Options(opts).Apply(&g)
+	return writeGo(w, serverTmpl, g.context)
 }
 
 func writeGo(w io.Writer, tmpl *template.Template, context interface{}) error {
@@ -157,7 +163,6 @@ import (
 "net/http"
 "net/url"
 "encoding/json"
-"bytes"
 "context"
 {{ .Imports }}
 )
@@ -167,12 +172,25 @@ type {{.ClientName}} struct {
     host *url.URL
 }
 
+func New{{.ClientName}}(host string) (*{{.ClientName}}, error) {
+    u, err := url.Parse(host)
+    if err != nil {
+        return nil, err
+    }
+
+    return &{{.ClientName}}{client: http.DefaultClient, host: u}, nil
+}
+
 {{ $ctxt := . }}{{ range .Bindings }}
 func (c *{{ $ctxt.ClientName }}) {{signature .Function}} {
     u, err := c.host.Parse({{path .}})
     if err != nil {
         return
     }
+
+    {{if ne (len .Query) 0}}query := u.Query()
+    {{range $k, $v := .Query}}query.Set("{{$k}}", {{$v}})
+    {{end}}u.RawQuery = query.Encode(){{end}}
 
     var (
         body io.Reader
@@ -200,7 +218,8 @@ func (c *{{ $ctxt.ClientName }}) {{signature .Function}} {
         _ = resp.Body.Close()
     }()
 
-    {{if .HasReturn}}err = json.NewDecoder(resp.Body).Decode(&rtn){{end}}
+    {{if .HasReturn}}{{if .ReturnIsPtr}}rtn = &{{.ReturnType}}{}{{end}}
+    err = json.NewDecoder(resp.Body).Decode({{if not .ReturnIsPtr}}&{{end}}rtn){{end}}
 
     return
 }
@@ -232,7 +251,7 @@ type {{.ServerName}} struct {
     srv Service
 }
 {{ $ctxt := . }}
-func NewServer(srv Service) *{{.ServerName}} {
+func New{{.ServerName}}(srv Service) *{{.ServerName}} {
     s := &{{.ServerName}}{
       Router: chi.NewRouter(),
       srv: srv,
@@ -248,6 +267,8 @@ func NewServer(srv Service) *{{.ServerName}} {
 func (c *{{ $ctxt.ServerName }}) handle{{.Function.Name}}(w http.ResponseWriter, r *http.Request) {
     {{range .Path}}{{if eq .Type "variable"}}{{.Var}} := chi.URLParam(r, "{{.Value}}")
     {{end}}{{end}}
+    {{range $k, $v := .Query}}{{$v}} := r.URL.Query().Get("{{$k}}")
+    {{end}}
     {{if ne .BodyVar ""}}var {{.BodyVar}} {{.BodyType}}
     if err := json.NewDecoder(r.Body).Decode(&{{.BodyVar}}); err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -1,8 +1,31 @@
 package truce
 
-apis: [...#API]
+outputs: [n=string]: [v=string]: {
+		name:       string
+		version:    =~"^[0-9]+$"
+		http?:      #HTTPOutput
+} & {name: n, version: v}
+
+#HTTPOutput: {
+	types?:  #Target
+	server?: #TypedTarget
+	client?: #TypedTarget
+}
+
+#TypedTarget: {
+	#Target
+	type: string | *"Server"
+}
+
+#Target: {
+	path: string | *"<stdout>"
+	pkg:  string | *"types"
+}
+
+specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 
 #API: {
+	name:    string
 	version: =~"^[0-9]+$" // API Major version
 	transports?: http?: #HTTP
 	functions: [n=_]:   #Function & {"name": n}
@@ -26,13 +49,13 @@ apis: [...#API]
 	fields: [n=_]: #Field & {"name": n}
 }
 
-#primitives: ["bool", "int", "float", "byte", "string"]
+#primitives: ["bool", "int", "float64", "byte", "string"]
 #slices: [ for x in #primitives {"[]\(x)"}]
 #all: #primitives + #slices
 
 #Field: {
 	name: string
-	type: or(#all) | =~"^[A-Z][a-zA-Z]*$" | =~"^[[]][A-Z][a-zA-Z]*?" // can be primitive, CustomType, []primitive or []CustomType. 
+	type: or(#all) | =~"map[[][*]?[A-Za-z]+[]][*]?[A-Za-z]+" | =~"^[*]?[A-Z][a-zA-Z]*$" | =~"^[[][]][*]?[A-Z][a-zA-Z]*?" // can be primitive, Custom, *Custom, []primitive, []Custom, []*Custom.
 }
 
 #HTTPFunction: {
@@ -42,6 +65,17 @@ apis: [...#API]
 }
 
 #Argument: {
+	name: string
+	from: "body"
+} | {
+	name: string
+	from: "path"
+	var:  string
+} | {
+	name: string
+	from: "query"
+	var:  string
+} | {
 	name:  string
-	value: "$body" | =~"^[$]path[.].+$" | =~"^[^$]?.*$" // can be a constant or $body or $path.var
+	value: string
 }

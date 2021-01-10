@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/georgemac/truce"
 	"github.com/georgemac/truce/pkg/generate"
@@ -14,7 +13,6 @@ import (
 
 var (
 	source = flag.String("src", "", "Filepath for source truce specification")
-	dst    = flag.String("w", "<stdout>", "Destination to write generated output (can be in form 'path' or 'type:path' or blank for defaults)")
 )
 
 func main() {
@@ -26,100 +24,83 @@ func main() {
 	}
 
 	var spec truce.Specification
-	err = truce.Unmarshal(targetRaw, &spec)
+
+	if err = truce.Unmarshal(targetRaw, &spec); err != nil {
+		panic(err)
+	}
 
 	switch flag.Arg(0) {
 	case "validate", "val":
-		if err != nil {
-			panic(err)
-		}
+		break
 	case "generate", "gen":
-		targets := map[string]io.Writer{
-			"types":  os.Stdout,
-			"client": os.Stdout,
-			"server": os.Stdout,
-		}
-
-		if *dst != "<stdout>" {
-			if *dst == "" {
-				// apply defaults
-				*dst = "types:types_truce_gen.go,client:client_truce_gen.go,server:server_truce_gen.go"
-			}
-
-			files := map[string]*os.File{}
-			for _, target := range strings.Split(*dst, ",") {
-				v := strings.SplitN(target, ":", 2)
-				var (
-					target = flag.Arg(1)
-					path   = v[0]
-				)
-
-				if len(v) > 1 {
-					target = v[0]
-					path = v[1]
-				}
-
-				if path == "<stdout>" {
-					targets[target] = os.Stdout
-					continue
-				}
-
-				// cache opened files
-				f, ok := files[path]
+		for n, versions := range spec.Outputs {
+			for v, output := range versions {
+				versions, ok := spec.Specifications[n]
 				if !ok {
-					f, err = os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-					if err != nil {
-						panic(err)
+					fmt.Printf("\"%s v%s\" specification not found\n", n, v)
+					os.Exit(1)
+				}
+
+				api, ok := versions[v]
+				if !ok {
+					fmt.Printf("\"%s v%s\" specification not found\n", n, v)
+					os.Exit(1)
+				}
+
+				g, err := generate.New(api)
+				if err != nil {
+					panic(err)
+				}
+
+				if http := output.HTTP; http != nil {
+					fmt.Printf("Generating API \"%s v%s\" HTTP Types\n", n, v)
+
+					if target := http.Types; target != nil {
+						writeTo(target.Path, g.WriteTypesTo,
+							generate.WithPackageName(target.Pkg))
 					}
 
-					defer f.Close()
-					files[path] = f
-				}
+					if target := http.Server; target != nil {
+						writeTo(target.Path, g.WriteServerTo,
+							generate.WithPackageName(target.Pkg),
+							generate.WithServerName(target.Type))
+					}
 
-				ts := []string{target}
-				if target == "" {
-					ts = []string{"types", "client", "server"}
-				}
-				for _, target := range ts {
-					targets[target] = f
+					if target := http.Client; target != nil {
+						writeTo(target.Path, g.WriteClientTo,
+							generate.WithPackageName(target.Pkg),
+							generate.WithClientName(target.Type))
+					}
 				}
 			}
-		}
-
-		var generator func(truce.API) error
-		curry := func(dst io.Writer, fn func(io.Writer, truce.API) error) func(truce.API) error {
-			return func(a truce.API) error {
-				return fn(dst, a)
-			}
-		}
-
-		switch flag.Arg(1) {
-		case "types":
-			generator = curry(targets["types"], generate.GenerateTypes)
-		case "client":
-			generator = curry(targets["client"], generate.GenerateClient)
-		case "server":
-			generator = curry(targets["server"], generate.GenerateServer)
-		case "", "all":
-			generator = func(a truce.API) error {
-				if err := generate.GenerateTypes(targets["types"], a); err != nil {
-					panic(err)
-				}
-				if err := generate.GenerateClient(targets["client"], a); err != nil {
-					panic(err)
-				}
-				return generate.GenerateServer(targets["server"], a)
-			}
-		default:
-			fmt.Printf("unexpected generation selector: %q\n", flag.Arg(1))
-			os.Exit(2)
-		}
-
-		if err := generator(spec.APIs[0]); err != nil {
-			panic(err)
 		}
 	default:
 		fmt.Printf("unexpected sub-command: %q\n", flag.Arg(0))
 		os.Exit(2)
 	}
 }
+
+func writeTo(path string, w func(io.Writer, ...generate.Option) error, opts ...generate.Option) {
+	var f io.WriteCloser = nopWriteCloser{os.Stdout}
+	if path != "<stdout>" {
+		var err error
+		f, err = os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+
+	defer f.Close()
+
+	if err := w(f, opts...); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+type nopWriteCloser struct {
+	io.Writer
+}
+
+func (n nopWriteCloser) Close() error { return nil }

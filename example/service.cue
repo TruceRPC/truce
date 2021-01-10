@@ -12,13 +12,29 @@ import "strings"
 	}
 }
 
-apis: [
-	{
-		version: "1"
+outputs:
+	"example": "1": {
+		http: {
+			types: {path: "example/types.go", pkg: "example"}
+			server: {
+				path: "example/server.go"
+				type: "Server"
+				pkg:  "example"
+			}
+			client: {
+				path: "example/client.go"
+				type: "Client"
+				pkg:  "example"
+			}
+		}
+	}
+
+specifications: {
+	"example": "1": {
 		transports: {
 			http: {
 				versions: ["1.0", "1.1", "2.0"]
-				prefix: "/api/v\(version)"
+				prefix: "/api/v1"
 			}
 		}
 		functions: {
@@ -32,9 +48,9 @@ apis: [
 						type: resourceName
 					}
 					transports: http: {
-						path:   "\(strings.ToLower(resourceName))s/{id}"
-						method: "GET"
-						arguments: id: value: "$path.id"
+						path:                 "\(strings.ToLower(resourceName))s/{id}"
+						method:               "GET"
+						arguments: id: {from: "path", var: "id"}
 					}
 				}
 				"Get\(resourceName)s": {
@@ -58,7 +74,7 @@ apis: [
 					transports: http: {
 						path:   "/\(strings.ToLower(resourceName))s"
 						method: "PUT"
-						arguments: "\(strings.ToLower(resourceName))": value: "$body"
+						arguments: "\(strings.ToLower(resourceName))": from: "body"
 					}
 				}
 				"Patch\(resourceName)": {
@@ -74,14 +90,19 @@ apis: [
 						path:   "/\(strings.ToLower(resourceName))s/{id}"
 						method: "PATCH"
 						arguments: {
-							id: value:                                 "$path.id"
-							"\(strings.ToLower(resourceName))": value: "$body"
+							id: {from: "path", var: "id"}
+							"\(strings.ToLower(resourceName))": from: "body"
 						}
 					}
 				}
 			}
 		}
 		types: {
+			Foo: {
+				fields: {
+					name: type: "map[string]User"
+				}
+			}
 			for resourceName, resource in #resources {
 				"\(resourceName)": {
 					fields: {
@@ -113,5 +134,5 @@ apis: [
 				}
 			}
 		}
-	},
-]
+	}
+}
