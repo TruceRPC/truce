@@ -1,4 +1,4 @@
-package types
+package example
 
 import (
 	"bytes"
@@ -14,6 +14,15 @@ import (
 type Client struct {
 	client *http.Client
 	host   *url.URL
+}
+
+func NewClient(host string) (*Client, error) {
+	u, err := url.Parse(host)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{client: http.DefaultClient, host: u}, nil
 }
 
 func (c *Client) GetPost(ctxt context.Context, v0 string) (rtn Post, err error) {

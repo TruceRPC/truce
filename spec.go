@@ -5,13 +5,14 @@ import "cuelang.org/go/cue"
 var Runtime = &cue.Runtime{}
 
 type Specification struct {
-	Specifications map[string]API `cue:"specifications"`
+	Outputs        map[string]map[string]Output `cue:"outputs"`
+	Specifications map[string]map[string]API    `cue:"specifications"`
 }
 
 func Unmarshal(data []byte, spec *Specification) error {
 	target, err := Runtime.Compile("target", data)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	filled, err := cuegenInstance.Fill(target.Value())
@@ -31,7 +32,30 @@ func Unmarshal(data []byte, spec *Specification) error {
 	return nil
 }
 
+type Output struct {
+	Name    string      `cue:"name"`
+	Version string      `cue:"version"`
+	HTTP    *HTTPOutput `cue:"http"`
+}
+
+type HTTPOutput struct {
+	Types  *Target      `cue:"types"`
+	Server *TypedTarget `cue:"server"`
+	Client *TypedTarget `cue:"client"`
+}
+
+type Target struct {
+	Path string `cue:"path"`
+	Pkg  string `cue:"pkg"`
+}
+
+type TypedTarget struct {
+	Target
+	Type string `cue:"type"`
+}
+
 type API struct {
+	Name       string              `cue:"name"`
 	Version    string              `cue:"version"`
 	Transports Transport           `cue:"transports"`
 	Functions  map[string]Function `cue:"functions"`

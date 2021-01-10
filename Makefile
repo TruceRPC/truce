@@ -21,9 +21,7 @@ trucegen: fmt ## Generate truce specification
 .PHONY: examplegen
 examplegen: trucegen build ## generate example directory cue services
 	@rm example/{types,server,client}.go 2> /dev/null || true
-	bin/truce -src example/service.cue gen types > example/types.go
-	bin/truce -src example/service.cue gen server > example/server.go
-	bin/truce -src example/service.cue gen client > example/client.go
+	bin/truce -src example/service.cue gen
 
 # http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help

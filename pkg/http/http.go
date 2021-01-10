@@ -2,6 +2,7 @@ package http
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strings"
 	"text/template"
@@ -11,7 +12,7 @@ import (
 
 type Bindings map[string]*Binding
 
-func BindingsFrom(api truce.API) Bindings {
+func BindingsFrom(api truce.API) (Bindings, error) {
 	b := Bindings{}
 
 	config := &truce.HTTP{Versions: []string{"1.0", "1.1", "2.0"}}
@@ -21,33 +22,40 @@ func BindingsFrom(api truce.API) Bindings {
 
 	tmpl, err := template.New("prefix").Parse(config.Prefix)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	buf := &bytes.Buffer{}
 	if err := tmpl.Execute(buf, api); err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	config.Prefix = buf.String()
 
 	for _, f := range api.Functions {
-		if binding := NewBinding(config, f); binding != nil {
+		binding, err := NewBinding(config, f)
+		if err != nil {
+			return nil, err
+		}
+
+		if binding != nil {
 			b[f.Name] = binding
 		}
 	}
 
-	return b
+	return b, nil
 }
 
 type Binding struct {
-	Function  truce.Function
-	Method    string
-	Path      Path
-	Query     map[string]string
-	BodyVar   string
-	BodyType  string
-	HasReturn bool
+	Function    truce.Function
+	Method      string
+	Path        Path
+	Query       map[string]string
+	BodyVar     string
+	BodyType    string
+	HasReturn   bool
+	ReturnType  string
+	ReturnIsPtr bool
 }
 
 type Path []Element
@@ -135,9 +143,9 @@ func (e Element) FmtString() string {
 	}
 }
 
-func NewBinding(config *truce.HTTP, function truce.Function) *Binding {
+func NewBinding(config *truce.HTTP, function truce.Function) (*Binding, error) {
 	if function.Transports.HTTP == nil {
-		return nil
+		return nil, nil
 	}
 
 	transport := *function.Transports.HTTP
@@ -163,6 +171,16 @@ func NewBinding(config *truce.HTTP, function truce.Function) *Binding {
 
 	if function.Return.Name != "" {
 		b.HasReturn = true
+		b.ReturnType = string(function.Return.Type)
+
+		if len(b.ReturnType) < 1 {
+			return nil, errors.New("return type cannot be empty")
+		}
+
+		if b.ReturnType[0] == '*' {
+			b.ReturnType = b.ReturnType[1:]
+			b.ReturnIsPtr = true
+		}
 	}
 
 	b.Method = transport.Method
@@ -205,5 +223,5 @@ func NewBinding(config *truce.HTTP, function truce.Function) *Binding {
 
 	b.Path = append(b.Path, parsePath(pathMappings, transport.Path)...)
 
-	return b
+	return b, nil
 }

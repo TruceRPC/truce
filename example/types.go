@@ -1,4 +1,8 @@
-package types
+package example
+
+type Foo struct {
+	Name map[string]User `json:"name"`
+}
 
 type PatchPostRequest struct {
 	Body  string `json:"body"`

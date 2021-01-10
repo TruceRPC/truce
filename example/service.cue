@@ -12,13 +12,29 @@ import "strings"
 	}
 }
 
+outputs:
+	"example": "1": {
+		http: {
+			types: {path: "example/types.go", pkg: "example"}
+			server: {
+				path: "example/server.go"
+				type: "Server"
+				pkg:  "example"
+			}
+			client: {
+				path: "example/client.go"
+				type: "Client"
+				pkg:  "example"
+			}
+		}
+	}
+
 specifications: {
-	let version = "1"
-	"\(version)": {
+	"example": "1": {
 		transports: {
 			http: {
 				versions: ["1.0", "1.1", "2.0"]
-				prefix: "/api/v\(version)"
+				prefix: "/api/v1"
 			}
 		}
 		functions: {
@@ -82,6 +98,11 @@ specifications: {
 			}
 		}
 		types: {
+			Foo: {
+				fields: {
+					name: type: "map[string]User"
+				}
+			}
 			for resourceName, resource in #resources {
 				"\(resourceName)": {
 					fields: {
