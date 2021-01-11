@@ -164,9 +164,7 @@ var typeTmpl = template.Must(
 		Parse(`package {{ .Package }}
 
 import (
-"fmt"
-"encoding/json"
-"errors"
+{{ if ne (len .Errors) 0 }}"fmt"{{ end }}
 {{ .Imports }}
 )
 
@@ -176,46 +174,9 @@ type {{ $type.Name }} struct {
 {{ end }}
 }
 
-{{ if eq $type.Type "error"}}func (e {{$type.Name}}) MarshalJSON() ([]byte, error) {
-    return json.Marshal(struct{
-        Truce_ErrorType string {{ backtick "json:\"error_type\"" }}
-        {{ range $field := $type.Fields }}  {{name .}}   {{.Type}} {{tags .}}
-        {{end}}
-    }{
-        Truce_ErrorType: "{{$type.Name}}",
-        {{ range $field := $type.Fields }}  {{name .}}: e.{{name .}},
-        {{end}}
-    })
-}
-
-func (e {{$type.Name}}) Error() string {
+{{ if eq $type.Type "error"}}func (e {{$type.Name}}) Error() string {
     return fmt.Sprintf({{ errorFmt $type }})
-}{{end}}{{end}}
-
-func UnmarshalJSONError(data []byte, dst *error) (error) {
-    v := struct{Truce_ErrorType string {{ backtick "json:\"error_type\"" }}}{}
-
-    if err := json.Unmarshal(data, &v); err != nil {
-        return err
-    }
-
-    switch v.Truce_ErrorType {
-        {{ range .Errors }}{{$type := .Definition}}case "{{$type.Name}}":
-
-        v := {{$type.Name}}{}
-        if err := json.Unmarshal(data, &v); err != nil {
-            return err
-        }
-
-        *dst = v
-        {{end}}
-    default:
-        return errors.New("internal service error")
-    }
-
-    return nil
-}
-`),
+}{{end}}{{end}}`),
 )
 
 var clientTmpl = template.Must(
@@ -233,6 +194,7 @@ import (
 "encoding/json"
 "context"
 "bytes"
+"errors"
 {{ .Imports }}
 )
 
@@ -287,12 +249,32 @@ func (c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
         _ = resp.Body.Close()
     }()
 
+    if err = checkResponse(resp); err != nil {
+        return
+    }
+
     {{if .HasReturn}}{{if .ReturnIsPtr}}rtn = &{{.ReturnType}}{}{{end}}
     err = json.NewDecoder(resp.Body).Decode({{if not .ReturnIsPtr}}&{{end}}rtn){{end}}
 
     return
-}
-{{ end }}`),
+}{{ end }}
+
+func checkResponse(resp *http.Response) (error) {
+    switch resp.StatusCode {
+    case http.StatusOK:
+        return nil
+    {{ range .Errors }}case {{.StatusCode}}:
+        v := {{.Definition.Name}}{}
+        if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+            return err
+        }
+
+        return v
+    {{ end }}
+    default:
+        return errors.New("unexpected status code")
+    }
+}`),
 )
 
 var serverTmpl = template.Must(

@@ -35,12 +35,12 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 #HTTP: {
 	versions: [...string]
 	prefix: string
-	errors: [n=_]: #HTTPError & {name: n}
+	errors: [c=string]: #HTTPError & {statusCode: c}
 }
 
 #HTTPError: {
-	name:       string
-	statusCode: int
+	type:       string
+	statusCode: =~"^[1-5][0-9]{2}$"
 }
 
 #Function: {

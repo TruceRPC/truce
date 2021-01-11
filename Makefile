@@ -18,14 +18,16 @@ trucegen: fmt ## Generate truce specification
 	@echo "Generating truce.go..."
 	@go run internal/cmd/trucegen/main.go
 
-.PHONY: examplegen
-examplegen: trucegen build ## generate example directory cue services
-	@rm example/{types,server,client}.go 2> /dev/null || true
+.PHONY: examplegen ## Re-generate example project
+examplegen: cleanExample trucegen build ## generate example directory cue services
 	bin/truce -src example/service.cue gen
 
 # http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+cleanExample:
+	@rm example/{types,server,client}.go 2> /dev/null || true
 
 .DEFAULT_GOAL := help

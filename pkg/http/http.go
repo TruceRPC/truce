@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -48,10 +49,25 @@ func BindingsFrom(api truce.API) (Bindings, error) {
 		}
 	}
 
-	for _, t := range api.Types {
-		if t.Type == "error" {
-			b.Errors = append(b.Errors, NewError(config, t))
+	for _, err := range config.Errors {
+		t, ok := api.Types[err.Type]
+		if !ok {
+			return b, errors.New("cannot locate type definition for transport error")
 		}
+
+		if t.Type != "error" {
+			return b, errors.New("transport error type definition is not error")
+		}
+
+		code, err := strconv.ParseInt(err.StatusCode, 10, 64)
+		if err != nil {
+			return b, fmt.Errorf("parsing status code: %w", err)
+		}
+
+		b.Errors = append(b.Errors, Error{
+			Definition: t,
+			StatusCode: int(code),
+		})
 	}
 
 	return b, nil
@@ -60,15 +76,6 @@ func BindingsFrom(api truce.API) (Bindings, error) {
 type Error struct {
 	Definition truce.Type
 	StatusCode int
-}
-
-func NewError(config *truce.HTTP, def truce.Type) (e Error) {
-	e.Definition = def
-	e.StatusCode = 500
-	if t, ok := config.Errors[def.Name]; ok {
-		e.StatusCode = t.StatusCode
-	}
-	return
 }
 
 type Function struct {

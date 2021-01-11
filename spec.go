@@ -68,14 +68,14 @@ type Transport struct {
 }
 
 type HTTP struct {
-	Versions []string              `cue:"versions"`
-	Prefix   string                `cue:"prefix"`
-	Errors   map[string]*HTTPError `cue:"errors"`
+	Versions []string           `cue:"versions"`
+	Prefix   string             `cue:"prefix"`
+	Errors   map[int]*HTTPError `cue:"errors"`
 }
 
 type HTTPError struct {
-	Name       string `cue:"name"`
-	StatusCode int    `cue:"statusCode"`
+	Type       string `cue:"type"`
+	StatusCode string `cue:"statusCode"`
 }
 
 type Function struct {

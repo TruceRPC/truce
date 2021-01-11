@@ -36,8 +36,8 @@ specifications: {
 				versions: ["1.0", "1.1", "2.0"]
 				prefix: "/api/v1"
 				errors: {
-					NotAuthorized: statusCode: 401
-					NotFound: statusCode:      404
+					"401": type: "NotAuthorized"
+					"404": type: "NotFound"
 				}
 			}
 		}

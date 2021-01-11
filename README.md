@@ -12,7 +12,7 @@ API specification languages like OpenAPI are expressive. They allow for APIs to 
 
 Truce is in search of a sweet spot. Here are some of the desired traits this project aims to incorporate:
 
-- Be language agnostic (Starting with generators writting in and for Go).
+- Be language agnostic (Starting with generators written in and for Go).
 - Generate servers and clients.
 - Make space for multiple target transport protocols and versions (e.g. HTTP 1.1 and 2, maybe even gRPC).
 - Ability to express human readable wire-formats (REST with JSON).
@@ -25,17 +25,14 @@ Truce is in search of a sweet spot. Here are some of the desired traits this pro
 Truce currently can generate Go struct definitions (types), clients (Go over http) and servers (Go over http) definitions.
 
 ```
-bin/truce -src=<source cue definition> val[idate] # validate source file
-bin/truce -src=<source cue definition> -w <target destination defaults to <stdout>> gen[erate] <all|types|server|client> # run generators
+bin/truce -src=<source cue definition> val[idate] # validate Truce source CUE definitions.
+bin/truce -src=<source cue definition> gen[erate] # generate Truce types, client and server definitions based on source.
 ```
 
 Try it out with the `example` directory:
 
 ```
-bin/truce --src=example/service.cue val
-bin/truce --src=example/service.cue gen types  # each of the following go to stdout by default
-bin/truce --src=example/service.cue gen client
-bin/truce --src=example/service.cue gen server
+bin/truce --src=example/service.cue gen
 ```
 
 ## Building

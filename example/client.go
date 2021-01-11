@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -51,11 +52,14 @@ func (c *Client) GetPost(ctxt context.Context, v0 string) (rtn Post, err error) 
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
 }
-
 func (c *Client) GetPosts(ctxt context.Context) (rtn []Post, err error) {
 	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts"))
 	if err != nil {
@@ -82,11 +86,14 @@ func (c *Client) GetPosts(ctxt context.Context) (rtn []Post, err error) {
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
 }
-
 func (c *Client) GetUser(ctxt context.Context, v0 string) (rtn User, err error) {
 	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users/%v", v0))
 	if err != nil {
@@ -113,11 +120,14 @@ func (c *Client) GetUser(ctxt context.Context, v0 string) (rtn User, err error) 
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
 }
-
 func (c *Client) GetUsers(ctxt context.Context) (rtn []User, err error) {
 	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users"))
 	if err != nil {
@@ -144,11 +154,14 @@ func (c *Client) GetUsers(ctxt context.Context) (rtn []User, err error) {
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
 }
-
 func (c *Client) PatchPost(ctxt context.Context, v0 string, v1 PatchPostRequest) (rtn Post, err error) {
 	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", v0))
 	if err != nil {
@@ -181,11 +194,14 @@ func (c *Client) PatchPost(ctxt context.Context, v0 string, v1 PatchPostRequest)
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
 }
-
 func (c *Client) PatchUser(ctxt context.Context, v0 string, v1 PatchUserRequest) (rtn User, err error) {
 	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users/%v", v0))
 	if err != nil {
@@ -218,11 +234,14 @@ func (c *Client) PatchUser(ctxt context.Context, v0 string, v1 PatchUserRequest)
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
 }
-
 func (c *Client) PutPost(ctxt context.Context, v0 PutPostRequest) (rtn Post, err error) {
 	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts"))
 	if err != nil {
@@ -255,11 +274,14 @@ func (c *Client) PutPost(ctxt context.Context, v0 PutPostRequest) (rtn Post, err
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
 }
-
 func (c *Client) PutUser(ctxt context.Context, v0 PutUserRequest) (rtn User, err error) {
 	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users"))
 	if err != nil {
@@ -292,7 +314,35 @@ func (c *Client) PutUser(ctxt context.Context, v0 PutUserRequest) (rtn User, err
 		_ = resp.Body.Close()
 	}()
 
+	if err = checkResponse(resp); err != nil {
+		return
+	}
+
 	err = json.NewDecoder(resp.Body).Decode(&rtn)
 
 	return
+}
+
+func checkResponse(resp *http.Response) error {
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return nil
+	case 401:
+		v := NotAuthorized{}
+		if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+			return err
+		}
+
+		return v
+	case 404:
+		v := NotFound{}
+		if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+			return err
+		}
+
+		return v
+
+	default:
+		return errors.New("unexpected status code")
+	}
 }
