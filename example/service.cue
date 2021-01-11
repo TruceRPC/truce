@@ -35,6 +35,10 @@ specifications: {
 			http: {
 				versions: ["1.0", "1.1", "2.0"]
 				prefix: "/api/v1"
+				errors: {
+					NotAuthorized: statusCode: 401
+					NotFound: statusCode:      404
+				}
 			}
 		}
 		functions: {
@@ -98,10 +102,13 @@ specifications: {
 			}
 		}
 		types: {
-			Foo: {
-				fields: {
-					name: type: "map[string]User"
-				}
+			NotAuthorized: {
+				type: "error"
+				fields: message: type: "string"
+			}
+			NotFound: {
+				type: "error"
+				fields: message: type: "string"
 			}
 			for resourceName, resource in #resources {
 				"\(resourceName)": {

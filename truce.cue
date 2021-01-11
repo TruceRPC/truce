@@ -35,6 +35,12 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 #HTTP: {
 	versions: [...string]
 	prefix: string
+	errors: [n=_]: #HTTPError & {name: n}
+}
+
+#HTTPError: {
+	name:       string
+	statusCode: int
 }
 
 #Function: {
@@ -46,6 +52,7 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 
 #Type: {
 	name: =~"^[A-Z][a-zA-Z]*$" // type names are capitalised
+	type: "error" | *"struct"
 	fields: [n=_]: #Field & {"name": n}
 }
 

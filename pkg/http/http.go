@@ -10,10 +10,15 @@ import (
 	"github.com/georgemac/truce"
 )
 
-type Bindings map[string]*Binding
+type Bindings struct {
+	Errors    []Error
+	Functions map[string]*Function
+}
 
 func BindingsFrom(api truce.API) (Bindings, error) {
-	b := Bindings{}
+	b := Bindings{
+		Functions: map[string]*Function{},
+	}
 
 	config := &truce.HTTP{Versions: []string{"1.0", "1.1", "2.0"}}
 	if api.Transports.HTTP != nil {
@@ -22,32 +27,52 @@ func BindingsFrom(api truce.API) (Bindings, error) {
 
 	tmpl, err := template.New("prefix").Parse(config.Prefix)
 	if err != nil {
-		return nil, err
+		return b, err
 	}
 
 	buf := &bytes.Buffer{}
 	if err := tmpl.Execute(buf, api); err != nil {
-		return nil, err
+		return b, err
 	}
 
 	config.Prefix = buf.String()
 
 	for _, f := range api.Functions {
-		binding, err := NewBinding(config, f)
+		fn, err := NewFunction(config, f)
 		if err != nil {
-			return nil, err
+			return b, err
 		}
 
-		if binding != nil {
-			b[f.Name] = binding
+		if fn != nil {
+			b.Functions[f.Name] = fn
+		}
+	}
+
+	for _, t := range api.Types {
+		if t.Type == "error" {
+			b.Errors = append(b.Errors, NewError(config, t))
 		}
 	}
 
 	return b, nil
 }
 
-type Binding struct {
-	Function    truce.Function
+type Error struct {
+	Definition truce.Type
+	StatusCode int
+}
+
+func NewError(config *truce.HTTP, def truce.Type) (e Error) {
+	e.Definition = def
+	e.StatusCode = 500
+	if t, ok := config.Errors[def.Name]; ok {
+		e.StatusCode = t.StatusCode
+	}
+	return
+}
+
+type Function struct {
+	Definition  truce.Function
 	Method      string
 	Path        Path
 	Query       map[string]string
@@ -143,14 +168,14 @@ func (e Element) FmtString() string {
 	}
 }
 
-func NewBinding(config *truce.HTTP, function truce.Function) (*Binding, error) {
+func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error) {
 	if function.Transports.HTTP == nil {
 		return nil, nil
 	}
 
 	transport := *function.Transports.HTTP
 
-	b := &Binding{Function: function, Query: map[string]string{}}
+	b := &Function{Definition: function, Query: map[string]string{}}
 
 	type argument struct {
 		variable string

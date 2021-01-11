@@ -24,7 +24,8 @@ type context struct {
 	ClientName string
 	ServerName string
 	Types      map[string]truce.Type
-	Bindings   http.Bindings
+	Functions  map[string]*http.Function
+	Errors     []http.Error
 }
 
 func New(api truce.API, opts ...Option) (Generator, error) {
@@ -40,7 +41,8 @@ func New(api truce.API, opts ...Option) (Generator, error) {
 			ClientName: "Client",
 			ServerName: "Server",
 			Types:      api.Types,
-			Bindings:   bindings,
+			Functions:  bindings.Functions,
+			Errors:     bindings.Errors,
 		},
 	}
 
@@ -79,14 +81,16 @@ func writeGo(w io.Writer, tmpl *template.Template, context interface{}) error {
 	return err
 }
 
+var nameFn = func(f truce.Field) (v string) {
+	parts := strings.Split(f.Name, "_")
+	for _, p := range parts {
+		v += strings.Title(p)
+	}
+	return
+}
+
 var tmplFuncs = template.FuncMap{
-	"name": func(f truce.Field) (v string) {
-		parts := strings.Split(f.Name, "_")
-		for _, p := range parts {
-			v += strings.Title(p)
-		}
-		return
-	},
+	"name": nameFn,
 	"tags": func(f truce.Field) (v string) {
 		return fmt.Sprintf("`json:%q`", f.Name)
 	},
@@ -110,7 +114,7 @@ var tmplFuncs = template.FuncMap{
 
 		return builder.String()
 	},
-	"path": func(b http.Binding) string {
+	"path": func(b *http.Function) string {
 		if len(b.Path) == 0 {
 			return fmt.Sprintf("%q", b.Path)
 		}
@@ -127,8 +131,29 @@ var tmplFuncs = template.FuncMap{
 		}
 		return
 	},
-	"method": func(b http.Binding) string {
+	"method": func(b *http.Function) string {
 		return strings.Title(strings.ToLower(b.Method))
+	},
+	"errorFmt": func(t truce.Type) string {
+		var (
+			i              int
+			fmtStr, argStr string
+		)
+		for _, field := range t.Fields {
+			if i > 0 {
+				fmtStr += " "
+				argStr += ", "
+			}
+
+			fmtStr += fmt.Sprintf("%s=%%q", field.Name)
+			argStr += fmt.Sprintf("e.%s", nameFn(field))
+			i++
+		}
+
+		return fmt.Sprintf(`"error: %s", %s`, fmtStr, argStr)
+	},
+	"backtick": func(v string) string {
+		return "`" + v + "`"
 	},
 }
 
@@ -139,6 +164,9 @@ var typeTmpl = template.Must(
 		Parse(`package {{ .Package }}
 
 import (
+"fmt"
+"encoding/json"
+"errors"
 {{ .Imports }}
 )
 
@@ -147,7 +175,47 @@ type {{ $type.Name }} struct {
 {{ range $field := $type.Fields }}  {{name .}}   {{.Type}} {{tags .}}
 {{ end }}
 }
-{{ end }}`),
+
+{{ if eq $type.Type "error"}}func (e {{$type.Name}}) MarshalJSON() ([]byte, error) {
+    return json.Marshal(struct{
+        Truce_ErrorType string {{ backtick "json:\"error_type\"" }}
+        {{ range $field := $type.Fields }}  {{name .}}   {{.Type}} {{tags .}}
+        {{end}}
+    }{
+        Truce_ErrorType: "{{$type.Name}}",
+        {{ range $field := $type.Fields }}  {{name .}}: e.{{name .}},
+        {{end}}
+    })
+}
+
+func (e {{$type.Name}}) Error() string {
+    return fmt.Sprintf({{ errorFmt $type }})
+}{{end}}{{end}}
+
+func UnmarshalJSONError(data []byte, dst *error) (error) {
+    v := struct{Truce_ErrorType string {{ backtick "json:\"error_type\"" }}}{}
+
+    if err := json.Unmarshal(data, &v); err != nil {
+        return err
+    }
+
+    switch v.Truce_ErrorType {
+        {{ range .Errors }}{{$type := .Definition}}case "{{$type.Name}}":
+
+        v := {{$type.Name}}{}
+        if err := json.Unmarshal(data, &v); err != nil {
+            return err
+        }
+
+        *dst = v
+        {{end}}
+    default:
+        return errors.New("internal service error")
+    }
+
+    return nil
+}
+`),
 )
 
 var clientTmpl = template.Must(
@@ -164,6 +232,7 @@ import (
 "net/url"
 "encoding/json"
 "context"
+"bytes"
 {{ .Imports }}
 )
 
@@ -181,8 +250,8 @@ func New{{.ClientName}}(host string) (*{{.ClientName}}, error) {
     return &{{.ClientName}}{client: http.DefaultClient, host: u}, nil
 }
 
-{{ $ctxt := . }}{{ range .Bindings }}
-func (c *{{ $ctxt.ClientName }}) {{signature .Function}} {
+{{ $ctxt := . }}{{ range .Functions }}
+func (c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
     u, err := c.host.Parse({{path .}})
     if err != nil {
         return
@@ -242,7 +311,7 @@ import (
 )
 
 type Service interface {
-    {{range .Bindings}}{{signature .Function}}
+    {{range .Functions}}{{signature .Definition}}
     {{end}}
 }
 
@@ -257,14 +326,13 @@ func New{{.ServerName}}(srv Service) *{{.ServerName}} {
       srv: srv,
     }
 
-    {{ range .Bindings }}s.Router.{{method .}}("{{.Path}}", s.handle{{.Function.Name}})
+    {{ range .Functions }}s.Router.{{method .}}("{{.Path}}", s.handle{{.Definition.Name}})
     {{end}}
 
     return s
 }
 
-{{ range .Bindings }}
-func (c *{{ $ctxt.ServerName }}) handle{{.Function.Name}}(w http.ResponseWriter, r *http.Request) {
+{{ range .Functions }}func (c *{{ $ctxt.ServerName }}) handle{{.Definition.Name}}(w http.ResponseWriter, r *http.Request) {
     {{range .Path}}{{if eq .Type "variable"}}{{.Var}} := chi.URLParam(r, "{{.Value}}")
     {{end}}{{end}}
     {{range $k, $v := .Query}}{{$v}} := r.URL.Query().Get("{{$k}}")
@@ -275,9 +343,9 @@ func (c *{{ $ctxt.ServerName }}) handle{{.Function.Name}}(w http.ResponseWriter,
         return
     }
     {{end}}
-	r0, err := c.srv.{{.Function.Name}}(r.Context(), {{args .Function}})
+	r0, err := c.srv.{{.Definition.Name}}(r.Context(), {{args .Definition}})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -287,5 +355,20 @@ func (c *{{ $ctxt.ServerName }}) handle{{.Function.Name}}(w http.ResponseWriter,
 
 	return
 }
-{{ end }}`),
+{{ end }}
+
+func handleError(w http.ResponseWriter, err error) {
+    switch err.(type) {
+    {{ range $err := .Errors }}case {{ $err.Definition.Name }}:
+       w.WriteHeader({{ $err.StatusCode }})
+       if merr := json.NewEncoder(w).Encode(err); merr != nil {
+           http.Error(w, merr.Error(), http.StatusInternalServerError)
+       }
+
+       return
+    {{ end }}
+    default:
+       http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+}`),
 )

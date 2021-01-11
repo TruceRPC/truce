@@ -84,7 +84,7 @@ func writeTo(path string, w func(io.Writer, ...generate.Option) error, opts ...g
 	var f io.WriteCloser = nopWriteCloser{os.Stdout}
 	if path != "<stdout>" {
 		var err error
-		f, err = os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
+		f, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

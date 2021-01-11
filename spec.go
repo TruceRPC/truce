@@ -68,8 +68,14 @@ type Transport struct {
 }
 
 type HTTP struct {
-	Versions []string `cue:"versions"`
-	Prefix   string   `cue:"prefix"`
+	Versions []string              `cue:"versions"`
+	Prefix   string                `cue:"prefix"`
+	Errors   map[string]*HTTPError `cue:"errors"`
+}
+
+type HTTPError struct {
+	Name       string `cue:"name"`
+	StatusCode int    `cue:"statusCode"`
 }
 
 type Function struct {
@@ -107,6 +113,7 @@ const (
 
 type Type struct {
 	Name   string           `cue:"name"`
+	Type   string           `cue:"type"`
 	Fields map[string]Field `cue:"fields"`
 }
 

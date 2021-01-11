@@ -47,7 +47,7 @@ func (c *Server) handleGetPost(w http.ResponseWriter, r *http.Request) {
 
 	r0, err := c.srv.GetPost(r.Context(), v0)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -57,12 +57,11 @@ func (c *Server) handleGetPost(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 func (c *Server) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 
 	r0, err := c.srv.GetPosts(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -72,13 +71,12 @@ func (c *Server) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 func (c *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
 	v0 := chi.URLParam(r, "id")
 
 	r0, err := c.srv.GetUser(r.Context(), v0)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -88,12 +86,11 @@ func (c *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 func (c *Server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 
 	r0, err := c.srv.GetUsers(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -103,7 +100,6 @@ func (c *Server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 func (c *Server) handlePatchPost(w http.ResponseWriter, r *http.Request) {
 	v0 := chi.URLParam(r, "id")
 
@@ -115,7 +111,7 @@ func (c *Server) handlePatchPost(w http.ResponseWriter, r *http.Request) {
 
 	r0, err := c.srv.PatchPost(r.Context(), v0, v1)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -125,7 +121,6 @@ func (c *Server) handlePatchPost(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 func (c *Server) handlePatchUser(w http.ResponseWriter, r *http.Request) {
 	v0 := chi.URLParam(r, "id")
 
@@ -137,7 +132,7 @@ func (c *Server) handlePatchUser(w http.ResponseWriter, r *http.Request) {
 
 	r0, err := c.srv.PatchUser(r.Context(), v0, v1)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -147,7 +142,6 @@ func (c *Server) handlePatchUser(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 func (c *Server) handlePutPost(w http.ResponseWriter, r *http.Request) {
 
 	var v0 PutPostRequest
@@ -158,7 +152,7 @@ func (c *Server) handlePutPost(w http.ResponseWriter, r *http.Request) {
 
 	r0, err := c.srv.PutPost(r.Context(), v0)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -168,7 +162,6 @@ func (c *Server) handlePutPost(w http.ResponseWriter, r *http.Request) {
 
 	return
 }
-
 func (c *Server) handlePutUser(w http.ResponseWriter, r *http.Request) {
 
 	var v0 PutUserRequest
@@ -179,7 +172,7 @@ func (c *Server) handlePutUser(w http.ResponseWriter, r *http.Request) {
 
 	r0, err := c.srv.PutUser(r.Context(), v0)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		handleError(w, err)
 		return
 	}
 
@@ -188,4 +181,26 @@ func (c *Server) handlePutUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	return
+}
+
+func handleError(w http.ResponseWriter, err error) {
+	switch err.(type) {
+	case NotAuthorized:
+		w.WriteHeader(401)
+		if merr := json.NewEncoder(w).Encode(err); merr != nil {
+			http.Error(w, merr.Error(), http.StatusInternalServerError)
+		}
+
+		return
+	case NotFound:
+		w.WriteHeader(404)
+		if merr := json.NewEncoder(w).Encode(err); merr != nil {
+			http.Error(w, merr.Error(), http.StatusInternalServerError)
+		}
+
+		return
+
+	default:
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
