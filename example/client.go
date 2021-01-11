@@ -12,6 +12,8 @@ import (
 	"net/url"
 )
 
+var _ = bytes.Compare
+
 type Client struct {
 	client *http.Client
 	host   *url.URL

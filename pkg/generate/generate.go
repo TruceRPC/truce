@@ -198,6 +198,8 @@ import (
 {{ .Imports }}
 )
 
+var _ = bytes.Compare
+
 type {{.ClientName}} struct {
     client *http.Client
     host *url.URL
