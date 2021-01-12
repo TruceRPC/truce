@@ -25,14 +25,14 @@ Truce is in search of a sweet spot. Here are some of the desired traits this pro
 Truce currently can generate Go struct definitions (types), clients (Go over http) and servers (Go over http) definitions.
 
 ```
-bin/truce -src=<source cue definition> val[idate] # validate Truce source CUE definitions.
-bin/truce -src=<source cue definition> gen[erate] # generate Truce types, client and server definitions based on source.
+bin/truce val[idate] <source due definition> # validate Truce source CUE definitions.
+bin/truce gen[erate] <source due definition> # generate Truce types, client and server definitions based on source.
 ```
 
 Try it out with the `example` directory:
 
 ```
-bin/truce --src=example/service.cue gen
+bin/truce gen example/service.cue
 ```
 
 ## Building
