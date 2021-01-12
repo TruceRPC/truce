@@ -20,7 +20,7 @@ trucegen: fmt ## Generate truce specification
 
 .PHONY: examplegen ## Re-generate example project
 examplegen: cleanExample trucegen build ## generate example directory cue services
-	bin/truce -src example/service.cue gen
+	bin/truce gen example/service.cue
 
 # http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help

@@ -11,14 +11,16 @@ import (
 	"github.com/georgemac/truce/pkg/generate"
 )
 
-var (
-	source = flag.String("src", "", "Filepath for source truce specification")
-)
-
 func main() {
-	flag.Parse()
+	if len(os.Args) < 3 {
+		usage := fmt.Sprintf("Usage: %s", os.Args[0])
+		fmt.Printf("%s <command>\n", usage)
+		fmt.Printf("%s val[idate] <specification>\n", pad(len(usage)))
+		fmt.Printf("%s gen[erate] <specification>\n", pad(len(usage)))
+		os.Exit(2)
+	}
 
-	targetRaw, err := ioutil.ReadFile(*source)
+	targetRaw, err := ioutil.ReadFile(os.Args[2])
 	if err != nil {
 		panic(err)
 	}
@@ -29,7 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	switch flag.Arg(0) {
+	switch os.Args[1] {
 	case "validate", "val":
 		break
 	case "generate", "gen":
@@ -104,3 +106,10 @@ type nopWriteCloser struct {
 }
 
 func (n nopWriteCloser) Close() error { return nil }
+
+func pad(n int) (v string) {
+	for i := 0; i < n; i++ {
+		v += " "
+	}
+	return
+}
