@@ -3,7 +3,7 @@ Truce - An RPC Framework
 
 Truce is a combined API and RPC specification language. It is built in [Go](https://golang.org) and powered by [Cue](https://cuelang.org).
 
-Its goal is to enable machine friendly RPC definitions to be expressed and exposed through human friendly API specifications (like REST). 
+Its goal is to enable machine friendly RPC definitions to be expressed and exposed through human friendly API specifications (like REST).
 
 RPC frameworks like gRPC, Twirp and WebRPC are awesome. They allow for service and procedure definitons to be expressed as configuration, which is then automatically generated into server and client definitions. The developer is left to primarily focus on the business logic.
 The resulting wire-types are often rigid and machine focussed. gRPC even requires protobuf and HTTP 2. Making it not particularly browser friendly, though plenty of projects exist to get this working. Each of these projects (to differing degrees) is pushing the developer to use code generation. Meaning, whichever language you're hoping to integrate with will require a well maintained set of code generation tools for that particular flavour of RPC.
@@ -72,3 +72,17 @@ curl -X PATCH --data-raw "{\"title\":\"Hello, World\",\"body\":\"Welcome to my b
 # list posts again
 curl localhost:8080/api/v1/posts
 ```
+
+## Inspiration
+
+Truce is inspired by the world of API and RPC code generators, including but not limited to:
+
+- All things gRPC:
+  - [gRPC](https://github.com/grpc/grpc)
+  - [gRPC-go](https://github.com/grpc/grpc-go)
+  - [gRPC-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
+  - [gRPC-web](https://github.com/grpc/grpc-web)
+- [Twirp](https://github.com/twitchtv/twirp)
+- [WebRPC](https://github.com/webrpc/webrpc)
+- [go-swagger](github.com/go-swagger/go-swagger)
+- [Oto](https://github.com/pacedotdev/oto)
