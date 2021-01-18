@@ -52,7 +52,7 @@ specifications: {
 						type: resourceName
 					}
 					transports: http: {
-						path:                 "\(strings.ToLower(resourceName))s/{id}"
+						path:                 "/\(strings.ToLower(resourceName))s/{id}"
 						method:               "GET"
 						arguments: id: {from: "path", var: "id"}
 					}
@@ -63,7 +63,7 @@ specifications: {
 						type: "[]\(resourceName)"
 					}
 					transports: http: {
-						path:   "\(strings.ToLower(resourceName))s"
+						path:   "/\(strings.ToLower(resourceName))s"
 						method: "GET"
 					}
 				}
