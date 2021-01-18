@@ -329,15 +329,15 @@ func checkResponse(resp *http.Response) error {
 	switch resp.StatusCode {
 	case http.StatusOK:
 		return nil
-	case 404:
-		v := NotFound{}
+	case 401:
+		v := NotAuthorized{}
 		if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
 			return err
 		}
 
 		return v
-	case 401:
-		v := NotAuthorized{}
+	case 404:
+		v := NotFound{}
 		if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
 			return err
 		}

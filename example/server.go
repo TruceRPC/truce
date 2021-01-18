@@ -185,15 +185,15 @@ func (c *Server) handlePutUser(w http.ResponseWriter, r *http.Request) {
 
 func handleError(w http.ResponseWriter, err error) {
 	switch err.(type) {
-	case NotFound:
-		w.WriteHeader(404)
+	case NotAuthorized:
+		w.WriteHeader(401)
 		if merr := json.NewEncoder(w).Encode(err); merr != nil {
 			http.Error(w, merr.Error(), http.StatusInternalServerError)
 		}
 
 		return
-	case NotAuthorized:
-		w.WriteHeader(401)
+	case NotFound:
+		w.WriteHeader(404)
 		if merr := json.NewEncoder(w).Encode(err); merr != nil {
 			http.Error(w, merr.Error(), http.StatusInternalServerError)
 		}

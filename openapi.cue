@@ -2,14 +2,42 @@ package truce
 
 import "strings"
 
+import "regexp"
+
 _#schemaObj: [_=string]: {
+	let mapMatcher = "^map[[]([^]])*[]](.*)$"
 	_type:    string
 	_isPrim:  _type =~ "^([]][]])?[a-z].*$"
 	_isArray: _type =~ "^[[][]].*$"
+	_isMap:   _type =~ mapMatcher
 	_trimmed: strings.TrimPrefix("\(_type)", "[]")
-	if _isArray {
-		type: "array"
-		items: {
+	if _isMap {
+		_mapParts:  regexp.FindAllSubmatch(mapMatcher, _type, 3)
+		_isValPrim: _mapParts[2] =~ "^([]][]])?[a-z].*$"
+
+		type: "object"
+		additionalProperties: {
+			if _isValPrim {
+				type: _mapParts[2]
+			}
+			if !_isValPrim {
+				"$ref": "#/components/schemas/\(_mapParts[2])"
+			}
+		}
+	}
+	if !_isMap {
+		if _isArray {
+			type: "array"
+			items: {
+				if _isPrim {
+					"type": _trimmed
+				}
+				if !_isPrim {
+					"$ref": "#/components/schemas/\(_trimmed)"
+				}
+			}
+		}
+		if !_isArray {
 			if _isPrim {
 				"type": _trimmed
 			}
@@ -18,20 +46,12 @@ _#schemaObj: [_=string]: {
 			}
 		}
 	}
-	if !_isArray {
-		if _isPrim {
-			"type": _trimmed
-		}
-		if !_isPrim {
-			"$ref": "#/components/schemas/\(_trimmed)"
-		}
-	}
 }
 
 openapi3: {
 	for apiName, apiVersions in specifications {
 		for apiVersion, apiDef in apiVersions {
-			"\(apiName)": {
+			"\(apiName)": "\(apiVersion)": {
 				openapi: "3.0.3"
 				info: {
 					title:   apiName
@@ -107,10 +127,6 @@ openapi3: {
 												_#schemaObj & {schema: {_type: fnDef.return.type}}
 											}
 										}
-									}
-									default: {
-										description: "\(fnDef.name) operation default response"
-										content: "application/json": {schema: type: "string"}
 									}
 								}
 							}

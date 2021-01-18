@@ -1,8 +1,8 @@
 {
     "openapi": "3.0.3",
     "info": {
-        "version": "1",
-        "title": "example"
+        "title": "example",
+        "version": "1"
     },
     "components": {
         "schemas": {
@@ -91,17 +91,6 @@
         "/posts/{id}": {
             "get": {
                 "operationId": "GetPost",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "GetPost operation 200 response",
@@ -112,21 +101,34 @@
                                 }
                             }
                         }
-                    },
-                    "default": {
-                        "description": "GetPost operation default response",
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "PatchPost",
+                "responses": {
+                    "200": {
+                        "description": "PatchPost operation 200 response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/Post"
                                 }
                             }
                         }
                     }
-                }
-            },
-            "patch": {
-                "operationId": "PatchPost",
+                },
                 "parameters": [
                     {
                         "name": "id",
@@ -138,28 +140,6 @@
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "PatchPost operation 200 response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Post"
-                                }
-                            }
-                        }
-                    },
-                    "default": {
-                        "description": "PatchPost operation default response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                },
                 "requestBody": {
                     "description": "PatchPost operation request body",
                     "content": {
@@ -188,16 +168,6 @@
                                 }
                             }
                         }
-                    },
-                    "default": {
-                        "description": "GetPosts operation default response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
                     }
                 }
             },
@@ -210,16 +180,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Post"
-                                }
-                            }
-                        }
-                    },
-                    "default": {
-                        "description": "PutPost operation default response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
                                 }
                             }
                         }
@@ -240,17 +200,6 @@
         "/users/{id}": {
             "get": {
                 "operationId": "GetUser",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "GetUser operation 200 response",
@@ -261,21 +210,34 @@
                                 }
                             }
                         }
-                    },
-                    "default": {
-                        "description": "GetUser operation default response",
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "PatchUser",
+                "responses": {
+                    "200": {
+                        "description": "PatchUser operation 200 response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
                     }
-                }
-            },
-            "patch": {
-                "operationId": "PatchUser",
+                },
                 "parameters": [
                     {
                         "name": "id",
@@ -287,28 +249,6 @@
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "PatchUser operation 200 response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
-                    },
-                    "default": {
-                        "description": "PatchUser operation default response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                },
                 "requestBody": {
                     "description": "PatchUser operation request body",
                     "content": {
@@ -337,16 +277,6 @@
                                 }
                             }
                         }
-                    },
-                    "default": {
-                        "description": "GetUsers operation default response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
                     }
                 }
             },
@@ -359,16 +289,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
-                    },
-                    "default": {
-                        "description": "PutUser operation default response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
                                 }
                             }
                         }

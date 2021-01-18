@@ -3,13 +3,19 @@ package truce
 outputs: [n=string]: [v=string]: {
 		name:       string
 		version:    =~"^[0-9]+$"
-		http?:      #HTTPOutput
+		go?:        #GoOutput
+		openapi?:   #OpenAPIOutput
 } & {name: n, version: v}
 
-#HTTPOutput: {
+#GoOutput: {
 	types?:  #Target
 	server?: #TypedTarget
 	client?: #TypedTarget
+}
+
+#OpenAPIOutput: {
+	version: 3
+	path:    string | *"./swagger.json"
 }
 
 #TypedTarget: {

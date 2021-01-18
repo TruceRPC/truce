@@ -1,3 +1,5 @@
+package truce
+
 import "strings"
 
 #resources: {
@@ -14,7 +16,11 @@ import "strings"
 
 outputs:
 	"example": "1": {
-		http: {
+		openapi: {
+			version: 3
+			path:    "example/swagger.json"
+		}
+		go: {
 			types: {path: "example/types.go", pkg: "example"}
 			server: {
 				path: "example/server.go"
