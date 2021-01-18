@@ -32,7 +32,12 @@ func Compile(data []byte) (cue.Value, error) {
 }
 
 func WriteOpenAPI(w io.Writer, val cue.Value, name, version string) error {
-	data, err := val.Lookup("openapi3", name, version).MarshalJSON()
+	val = val.Lookup("openapi3", name, version)
+	if err := val.Err(); err != nil {
+		return err
+	}
+
+	data, err := val.MarshalJSON()
 	if err != nil {
 		return err
 	}
@@ -87,9 +92,9 @@ type Transport struct {
 }
 
 type HTTP struct {
-	Versions []string           `cue:"versions"`
-	Prefix   string             `cue:"prefix"`
-	Errors   map[int]*HTTPError `cue:"errors"`
+	Versions []string              `cue:"versions"`
+	Prefix   string                `cue:"prefix"`
+	Errors   map[string]*HTTPError `cue:"errors"`
 }
 
 type HTTPError struct {
