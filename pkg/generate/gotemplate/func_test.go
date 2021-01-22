@@ -181,3 +181,41 @@ func TestPath(t *testing.T) {
 		})
 	}
 }
+
+func TestErrorFmt(t *testing.T) {
+	testcases := []struct {
+		name string
+		in   truce.Type
+		out  string
+	}{
+		{
+			name: "single field",
+			in: truce.Type{
+				Fields: map[string]truce.Field{
+					"aoeu": truce.Field{Name: "x", Type: "string"},
+				},
+			},
+			out: `"error: x=%q", e.X`,
+		},
+		{
+			name: "multiple fields",
+			in: truce.Type{
+				Fields: map[string]truce.Field{
+					"x": truce.Field{Name: "x", Type: "string"},
+					"y": truce.Field{Name: "y", Type: "string"},
+				},
+			},
+			out: `"error: x=%q y=%q", e.X, e.Y`,
+		},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			v := errorFmt(tc.in)
+			assert.Equal(t, v, tc.out)
+		})
+	}
+}
+
+func TestBacktick(t *testing.T) {
+	assert.Equal(t, backtick("hello"), "`hello`")
+}
