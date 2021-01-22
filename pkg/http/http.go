@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"text/template"
@@ -69,6 +70,12 @@ func BindingsFrom(api truce.API) (Bindings, error) {
 			StatusCode: int(code),
 		})
 	}
+
+	// Sort the errors by status code so we have a deterministic order going
+	// into any template phases.
+	sort.Slice(b.Errors, func(i, j int) bool {
+		return b.Errors[i].StatusCode < b.Errors[j].StatusCode
+	})
 
 	return b, nil
 }
