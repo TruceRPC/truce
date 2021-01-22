@@ -12,7 +12,7 @@ import (
 
 var testdata = os.DirFS("testdata")
 
-func TestGenerator_Types(t *testing.T) {
+func TestGenerator(t *testing.T) {
 	data, err := fs.ReadFile(testdata, "service.cue")
 	assert.NilError(t, err)
 
