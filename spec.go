@@ -1,6 +1,12 @@
 package truce
 
-import "cuelang.org/go/cue"
+import (
+	"bytes"
+	"encoding/json"
+	"io"
+
+	"cuelang.org/go/cue"
+)
 
 var Runtime = &cue.Runtime{}
 
@@ -9,39 +15,57 @@ type Specification struct {
 	Specifications map[string]map[string]API    `cue:"specifications"`
 }
 
-func Unmarshal(data []byte, spec *Specification) error {
+func Compile(data []byte) (cue.Value, error) {
 	target, err := Runtime.Compile("target", data)
 	if err != nil {
-		return err
+		return cue.Value{}, err
 	}
 
 	filled, err := cuegenInstance.Fill(target.Value())
 	if err != nil {
-		return err
+		return cue.Value{}, err
 	}
 
 	val := filled.Value()
+
+	return val, val.Err()
+}
+
+func WriteOpenAPI(w io.Writer, val cue.Value, name, version string) error {
+	val = val.Lookup("openapi3", name, version)
 	if err := val.Err(); err != nil {
 		return err
 	}
 
-	if err := val.Decode(spec); err != nil {
+	data, err := val.MarshalJSON()
+	if err != nil {
 		return err
 	}
 
-	return nil
+	buf := &bytes.Buffer{}
+	if err := json.Indent(buf, data, "", "    "); err != nil {
+		return err
+	}
+
+	_, err = buf.WriteTo(w)
+	return err
 }
 
 type Output struct {
-	Name    string      `cue:"name"`
-	Version string      `cue:"version"`
-	HTTP    *HTTPOutput `cue:"http"`
+	Name    string    `cue:"name"`
+	Version string    `cue:"version"`
+	Go      *GoOutput `cue:"go"`
+	OpenAPI *OpenAPI  `cue:"openapi"`
 }
 
-type HTTPOutput struct {
+type GoOutput struct {
 	Types  *Target      `cue:"types"`
 	Server *TypedTarget `cue:"server"`
 	Client *TypedTarget `cue:"client"`
+}
+
+type OpenAPI struct {
+	Path string `cue:"path"`
 }
 
 type Target struct {
@@ -68,9 +92,9 @@ type Transport struct {
 }
 
 type HTTP struct {
-	Versions []string           `cue:"versions"`
-	Prefix   string             `cue:"prefix"`
-	Errors   map[int]*HTTPError `cue:"errors"`
+	Versions []string              `cue:"versions"`
+	Prefix   string                `cue:"prefix"`
+	Errors   map[string]*HTTPError `cue:"errors"`
 }
 
 type HTTPError struct {

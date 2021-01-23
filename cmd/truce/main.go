@@ -25,9 +25,14 @@ func main() {
 		panic(err)
 	}
 
+	val, err := truce.Compile(targetRaw)
+	if err != nil {
+		panic(err)
+	}
+
 	var spec truce.Specification
 
-	if err = truce.Unmarshal(targetRaw, &spec); err != nil {
+	if err = val.Decode(&spec); err != nil {
 		panic(err)
 	}
 
@@ -54,25 +59,38 @@ func main() {
 					panic(err)
 				}
 
-				if http := output.HTTP; http != nil {
-					fmt.Printf("Generating API \"%s v%s\" HTTP Types\n", n, v)
+				if goOut := output.Go; goOut != nil {
+					fmt.Printf("Generating Service \"%s v%s\" Go Types\n", n, v)
 
-					if target := http.Types; target != nil {
+					if target := goOut.Types; target != nil {
 						writeTo(target.Path, g.WriteTypesTo,
 							generate.WithPackageName(target.Pkg))
 					}
 
-					if target := http.Server; target != nil {
+					if target := goOut.Server; target != nil {
 						writeTo(target.Path, g.WriteServerTo,
 							generate.WithPackageName(target.Pkg),
 							generate.WithServerName(target.Type))
 					}
 
-					if target := http.Client; target != nil {
+					if target := goOut.Client; target != nil {
 						writeTo(target.Path, g.WriteClientTo,
 							generate.WithPackageName(target.Pkg),
 							generate.WithClientName(target.Type))
 					}
+				}
+
+				if oaOut := output.OpenAPI; oaOut != nil {
+					fmt.Printf("Generating Service \"%s v%s\" Open API Specification\n", n, v)
+
+					writeTo(oaOut.Path, func(w io.Writer, _ ...generate.Option) error {
+						if err := truce.WriteOpenAPI(w, val, n, v); err != nil {
+							return err
+						}
+
+						return nil
+					})
+
 				}
 			}
 		}
