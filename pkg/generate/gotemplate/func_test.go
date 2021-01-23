@@ -192,7 +192,7 @@ func TestErrorFmt(t *testing.T) {
 			name: "single field",
 			in: truce.Type{
 				Fields: map[string]truce.Field{
-					"aoeu": truce.Field{Name: "x", Type: "string"},
+					"aoeu": {Name: "x", Type: "string"},
 				},
 			},
 			out: `"error: x=%q", e.X`,
@@ -201,8 +201,8 @@ func TestErrorFmt(t *testing.T) {
 			name: "multiple fields",
 			in: truce.Type{
 				Fields: map[string]truce.Field{
-					"x": truce.Field{Name: "x", Type: "string"},
-					"y": truce.Field{Name: "y", Type: "string"},
+					"x": {Name: "x", Type: "string"},
+					"y": {Name: "y", Type: "string"},
 				},
 			},
 			out: `"error: x=%q y=%q", e.X, e.Y`,

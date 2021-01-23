@@ -1,13 +1,11 @@
-.PHONY: deps
-deps: ## Download dependencies
-	@go mod download
-	@go get cuelang.org/go/cue
+GO ?= go1.16beta1
+export GO
 
 .PHONY: build
 build: trucegen ## Build truce into bin folder
 	@mkdir -p bin
 	@echo "Building Truce from source."
-	@go build -o bin/truce ./cmd/truce/...
+	@$(GO) build -o bin/truce ./cmd/truce/...
 
 .PHONY: fmt
 fmt: deps ## Run go fmt -s and cue fmt all over the shop
@@ -17,7 +15,21 @@ fmt: deps ## Run go fmt -s and cue fmt all over the shop
 .PHONY: trucegen
 trucegen: fmt ## Generate truce specification
 	@echo "Generating embedded truce.go definitions."
-	@go run internal/cmd/trucegen/main.go
+	@$(GO) run internal/cmd/trucegen/main.go
+
+require-buildtools:
+	@$(GO) version >/dev/null || (echo "Go 1.16beta1 is currently required. Try 'make install-go'." && exit 2)
+
+.PHONY: install-go
+install-go: # Install latest beta version of Go.
+	go get golang.org/dl/$(GO)
+	$(GO) download
+
+.PHONY: deps
+deps: require-buildtools ## Download dependencies
+	@$(GO) mod download
+	@$(GO) get cuelang.org/go/cue
+	@$(GO) mod tidy
 
 .PHONY: examplegen ## Re-generate example project
 examplegen: cleanExample trucegen build ## generate example directory cue services

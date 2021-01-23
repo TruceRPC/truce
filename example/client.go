@@ -63,7 +63,7 @@ func (c *Client) GetPost(ctxt context.Context, v0 string) (rtn Post, err error) 
 	return
 }
 func (c *Client) GetPosts(ctxt context.Context) (rtn []Post, err error) {
-	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts"))
+	u, err := c.host.Parse("/api/v1/posts")
 	if err != nil {
 		return
 	}
@@ -131,7 +131,7 @@ func (c *Client) GetUser(ctxt context.Context, v0 string) (rtn User, err error) 
 	return
 }
 func (c *Client) GetUsers(ctxt context.Context) (rtn []User, err error) {
-	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users"))
+	u, err := c.host.Parse("/api/v1/users")
 	if err != nil {
 		return
 	}
@@ -245,7 +245,7 @@ func (c *Client) PatchUser(ctxt context.Context, v0 string, v1 PatchUserRequest)
 	return
 }
 func (c *Client) PutPost(ctxt context.Context, v0 PutPostRequest) (rtn Post, err error) {
-	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts"))
+	u, err := c.host.Parse("/api/v1/posts")
 	if err != nil {
 		return
 	}
@@ -285,7 +285,7 @@ func (c *Client) PutPost(ctxt context.Context, v0 PutPostRequest) (rtn Post, err
 	return
 }
 func (c *Client) PutUser(ctxt context.Context, v0 PutUserRequest) (rtn User, err error) {
-	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users"))
+	u, err := c.host.Parse("/api/v1/users")
 	if err != nil {
 		return
 	}
