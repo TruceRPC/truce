@@ -1,0 +1,16 @@
+package {{ .Package }}
+
+import (
+{{ if ne (len .Errors) 0 }}"fmt"{{ end }}
+{{ .Imports }}
+)
+
+{{ range $type := .Types }}
+type {{ $type.Name }} struct {
+{{ range $field := $type.Fields }}  {{name .}}   {{.Type}} {{tags .}}
+{{ end }}
+}
+
+{{ if eq $type.Type "error"}}func (e {{$type.Name}}) Error() string {
+    return fmt.Sprintf({{ errorFmt $type }})
+}{{end}}{{end}}

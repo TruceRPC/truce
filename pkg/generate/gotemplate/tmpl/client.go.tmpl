@@ -1,0 +1,94 @@
+package {{ .Package }}
+
+import (
+"fmt"
+"io"
+"io/ioutil"
+"net/http"
+"net/url"
+"encoding/json"
+"context"
+"bytes"
+"errors"
+{{ .Imports }}
+)
+
+var _ = bytes.Compare
+
+type {{.ClientName}} struct {
+    client *http.Client
+    host *url.URL
+}
+
+func New{{.ClientName}}(host string) (*{{.ClientName}}, error) {
+    u, err := url.Parse(host)
+    if err != nil {
+        return nil, err
+    }
+
+    return &{{.ClientName}}{client: http.DefaultClient, host: u}, nil
+}
+
+{{ $ctxt := . }}{{ range .Functions }}
+func (c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
+    u, err := c.host.Parse({{path .}})
+    if err != nil {
+        return
+    }
+
+    {{if ne (len .Query) 0}}query := u.Query()
+    {{range $k, $v := .Query}}query.Set("{{$k}}", {{$v}})
+    {{end}}u.RawQuery = query.Encode(){{end}}
+
+    var (
+        body io.Reader
+        resp *http.Response
+    )
+
+    {{if ne .BodyVar ""}}buf := &bytes.Buffer{}
+    body = buf
+    if err = json.NewEncoder(buf).Encode({{.BodyVar}}); err != nil {
+        return
+    }{{end}}
+
+    req, err := http.NewRequest("{{.Method}}", u.String(), body)
+    if err != nil {
+        return
+    }
+
+    resp, err = c.client.Do(req.WithContext(ctxt))
+    if err != nil {
+        return
+    }
+
+    defer func(){
+        _, _ = io.Copy(ioutil.Discard, resp.Body)
+        _ = resp.Body.Close()
+    }()
+
+    if err = checkResponse(resp); err != nil {
+        return
+    }
+
+    {{if .HasReturn}}{{if .ReturnIsPtr}}rtn = &{{.ReturnType}}{}{{end}}
+    err = json.NewDecoder(resp.Body).Decode({{if not .ReturnIsPtr}}&{{end}}rtn){{end}}
+
+    return
+}{{ end }}
+
+func checkResponse(resp *http.Response) (error) {
+    switch resp.StatusCode {
+    case http.StatusOK:
+        return nil
+    {{ range .Errors }}case {{.StatusCode}}:
+        v := {{.Definition.Name}}{}
+        if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+            return err
+        }
+
+        return v
+    {{ end }}
+    default:
+        return errors.New("unexpected status code")
+    }
+}

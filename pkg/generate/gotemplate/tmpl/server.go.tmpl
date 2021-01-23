@@ -1,0 +1,72 @@
+package {{ .Package }}
+
+import (
+"context"
+"encoding/json"
+"net/http"
+
+"github.com/go-chi/chi"
+{{ .Imports }}
+)
+
+type Service interface {
+    {{range .Functions}}{{signature .Definition}}
+    {{end}}
+}
+
+type {{.ServerName}} struct {
+    chi.Router
+    srv Service
+}
+{{ $ctxt := . }}
+func New{{.ServerName}}(srv Service) *{{.ServerName}} {
+    s := &{{.ServerName}}{
+      Router: chi.NewRouter(),
+      srv: srv,
+    }
+
+    {{ range .Functions }}s.Router.{{method .}}("{{.Path}}", s.handle{{.Definition.Name}})
+    {{end}}
+
+    return s
+}
+
+{{ range .Functions }}func (c *{{ $ctxt.ServerName }}) handle{{.Definition.Name}}(w http.ResponseWriter, r *http.Request) {
+    {{range .Path}}{{if eq .Type "variable"}}{{.Var}} := chi.URLParam(r, "{{.Value}}")
+    {{end}}{{end}}
+    {{range $k, $v := .Query}}{{$v}} := r.URL.Query().Get("{{$k}}")
+    {{end}}
+    {{if ne .BodyVar ""}}var {{.BodyVar}} {{.BodyType}}
+    if err := json.NewDecoder(r.Body).Decode(&{{.BodyVar}}); err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    {{end}}
+	r0, err := c.srv.{{.Definition.Name}}(r.Context(), {{args .Definition}})
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(r0); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	return
+}
+{{ end }}
+
+func handleError(w http.ResponseWriter, err error) {
+    switch err.(type) {
+    {{ range $err := .Errors }}case {{ $err.Definition.Name }}:
+       w.WriteHeader({{ $err.StatusCode }})
+       if merr := json.NewEncoder(w).Encode(err); merr != nil {
+           http.Error(w, merr.Error(), http.StatusInternalServerError)
+       }
+
+       return
+    {{ end }}
+    default:
+       http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+}
