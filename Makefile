@@ -21,7 +21,7 @@ require-buildtools:
 	@$(GO) version >/dev/null || (echo "Go 1.16beta1 is currently required. Try 'make install-go'." && exit 2)
 
 .PHONY: install-go
-install-go: # Install latest beta version of Go.
+install-go: ## Install latest beta version of Go (requires a stable version of Go).
 	go get golang.org/dl/$(GO)
 	$(GO) download
 
