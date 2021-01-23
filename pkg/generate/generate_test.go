@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"cuelang.org/go/cue"
 	"github.com/georgemac/truce"
 	"gotest.tools/v3/assert"
 )
@@ -16,8 +17,12 @@ func TestGenerator(t *testing.T) {
 	data, err := fs.ReadFile(testdata, "service.cue")
 	assert.NilError(t, err)
 
+	var val cue.Value
+	val, err = truce.Compile(data)
+	assert.NilError(t, err)
+
 	var spec truce.Specification
-	err = truce.Unmarshal(data, &spec)
+	err = val.Decode(&spec)
 	assert.NilError(t, err)
 
 	versions, ok := spec.Specifications["example"]
