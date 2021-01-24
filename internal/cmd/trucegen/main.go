@@ -32,6 +32,7 @@ func main() {
 		panic(err)
 	}
 
+	// TODO(georgemac): put back ioutil.WriteFile once https://github.com/cuelang/cue/pull/664 is resolved.
 	fi, err := os.OpenFile("./truce.go", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
