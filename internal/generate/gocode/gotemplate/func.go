@@ -6,7 +6,6 @@ import (
 	"text/template"
 
 	"github.com/georgemac/truce"
-	"github.com/georgemac/truce/pkg/http"
 )
 
 var tmplFuncs = template.FuncMap{
@@ -53,7 +52,7 @@ func signature(f truce.Function) string {
 	return builder.String()
 }
 
-func path(b *http.Function) string {
+func path(b *Function) string {
 	if len(b.Path) == 0 {
 		return fmt.Sprintf("%q", b.Path)
 	}
@@ -82,7 +81,7 @@ func args(f truce.Function) (v string) {
 	return
 }
 
-func method(b *http.Function) string {
+func method(b *Function) string {
 	return strings.Title(strings.ToLower(b.Method))
 }
 

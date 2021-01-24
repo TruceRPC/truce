@@ -1,4 +1,4 @@
-package generate
+package gocode
 
 import (
 	"bytes"
@@ -7,8 +7,7 @@ import (
 	"text/template"
 
 	"github.com/georgemac/truce"
-	"github.com/georgemac/truce/pkg/generate/gotemplate"
-	"github.com/georgemac/truce/pkg/http"
+	"github.com/georgemac/truce/internal/generate/gocode/gotemplate"
 )
 
 type Generator struct {
@@ -24,12 +23,12 @@ type context struct {
 	ClientName string
 	ServerName string
 	Types      map[string]truce.Type
-	Functions  map[string]*http.Function
-	Errors     []http.Error
+	Functions  map[string]*gotemplate.Function
+	Errors     []gotemplate.Error
 }
 
 func New(api truce.API, opts ...Option) (Generator, error) {
-	bindings, err := http.BindingsFrom(api)
+	bindings, err := gotemplate.BindingsFrom(api)
 	if err != nil {
 		return Generator{}, err
 	}

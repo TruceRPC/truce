@@ -8,7 +8,8 @@ import (
 	"os"
 
 	"github.com/georgemac/truce"
-	"github.com/georgemac/truce/pkg/generate"
+	"github.com/georgemac/truce/internal/generate/gocode"
+	"github.com/georgemac/truce/internal/generate/openapi"
 )
 
 func main() {
@@ -54,7 +55,7 @@ func main() {
 					os.Exit(1)
 				}
 
-				g, err := generate.New(api)
+				g, err := gocode.New(api)
 				if err != nil {
 					panic(err)
 				}
@@ -64,27 +65,27 @@ func main() {
 
 					if target := goOut.Types; target != nil {
 						writeTo(target.Path, g.WriteTypesTo,
-							generate.WithPackageName(target.Pkg))
+							gocode.WithPackageName(target.Pkg))
 					}
 
 					if target := goOut.Server; target != nil {
 						writeTo(target.Path, g.WriteServerTo,
-							generate.WithPackageName(target.Pkg),
-							generate.WithServerName(target.Type))
+							gocode.WithPackageName(target.Pkg),
+							gocode.WithServerName(target.Type))
 					}
 
 					if target := goOut.Client; target != nil {
 						writeTo(target.Path, g.WriteClientTo,
-							generate.WithPackageName(target.Pkg),
-							generate.WithClientName(target.Type))
+							gocode.WithPackageName(target.Pkg),
+							gocode.WithClientName(target.Type))
 					}
 				}
 
 				if oaOut := output.OpenAPI; oaOut != nil {
 					fmt.Printf("Generating Service \"%s v%s\" Open API Specification\n", n, v)
 
-					writeTo(oaOut.Path, func(w io.Writer, _ ...generate.Option) error {
-						if err := truce.WriteOpenAPI(w, val, n, v); err != nil {
+					writeTo(oaOut.Path, func(w io.Writer, _ ...gocode.Option) error {
+						if err := openapi.WriteJSON(w, val, n, v); err != nil {
 							return err
 						}
 
@@ -100,7 +101,7 @@ func main() {
 	}
 }
 
-func writeTo(path string, w func(io.Writer, ...generate.Option) error, opts ...generate.Option) {
+func writeTo(path string, w func(io.Writer, ...gocode.Option) error, opts ...gocode.Option) {
 	var f io.WriteCloser = nopWriteCloser{os.Stdout}
 	if path != "<stdout>" {
 		var err error

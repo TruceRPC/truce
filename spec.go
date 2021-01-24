@@ -1,10 +1,6 @@
 package truce
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
-
 	"cuelang.org/go/cue"
 )
 
@@ -29,26 +25,6 @@ func Compile(data []byte) (cue.Value, error) {
 	val := filled.Value()
 
 	return val, val.Err()
-}
-
-func WriteOpenAPI(w io.Writer, val cue.Value, name, version string) error {
-	val = val.Lookup("openapi3", name, version)
-	if err := val.Err(); err != nil {
-		return err
-	}
-
-	data, err := val.MarshalJSON()
-	if err != nil {
-		return err
-	}
-
-	buf := &bytes.Buffer{}
-	if err := json.Indent(buf, data, "", "    "); err != nil {
-		return err
-	}
-
-	_, err = buf.WriteTo(w)
-	return err
 }
 
 type Output struct {
