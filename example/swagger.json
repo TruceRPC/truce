@@ -10,10 +10,14 @@
                 "type": "object",
                 "properties": {
                     "body": {
-                        "type": "string"
+                        "type": "string",
+                        "format": "base64"
                     },
                     "title": {
                         "type": "string"
+                    },
+                    "draft": {
+                        "type": "bool"
                     },
                     "id": {
                         "type": "string"
@@ -25,6 +29,12 @@
                 "properties": {
                     "name": {
                         "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "number"
                     },
                     "id": {
                         "type": "string"
@@ -51,10 +61,14 @@
                 "type": "object",
                 "properties": {
                     "body": {
-                        "type": "string"
+                        "type": "string",
+                        "format": "base64"
                     },
                     "title": {
                         "type": "string"
+                    },
+                    "draft": {
+                        "type": "bool"
                     }
                 }
             },
@@ -62,10 +76,14 @@
                 "type": "object",
                 "properties": {
                     "body": {
-                        "type": "string"
+                        "type": "string",
+                        "format": "base64"
                     },
                     "title": {
                         "type": "string"
+                    },
+                    "draft": {
+                        "type": "bool"
                     }
                 }
             },
@@ -74,6 +92,12 @@
                 "properties": {
                     "name": {
                         "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "number"
                     }
                 }
             },
@@ -82,6 +106,12 @@
                 "properties": {
                     "name": {
                         "type": "string"
+                    },
+                    "age": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "number"
                     }
                 }
             }
@@ -106,12 +136,12 @@
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
                     }
                 ]
             },
@@ -132,12 +162,12 @@
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
                     }
                 ],
                 "requestBody": {
@@ -215,12 +245,12 @@
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
                     }
                 ]
             },
@@ -241,12 +271,12 @@
                 "parameters": [
                     {
                         "name": "id",
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
                     }
                 ],
                 "requestBody": {

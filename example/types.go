@@ -21,30 +21,39 @@ func (e NotFound) Error() string {
 }
 
 type PatchPostRequest struct {
-	Body  string `json:"body"`
+	Body  []byte `json:"body"`
+	Draft bool   `json:"draft"`
 	Title string `json:"title"`
 }
 
 type PatchUserRequest struct {
-	Name string `json:"name"`
+	Age    int     `json:"age"`
+	Height float64 `json:"height"`
+	Name   string  `json:"name"`
 }
 
 type Post struct {
-	Body  string `json:"body"`
+	Body  []byte `json:"body"`
+	Draft bool   `json:"draft"`
 	Id    string `json:"id"`
 	Title string `json:"title"`
 }
 
 type PutPostRequest struct {
-	Body  string `json:"body"`
+	Body  []byte `json:"body"`
+	Draft bool   `json:"draft"`
 	Title string `json:"title"`
 }
 
 type PutUserRequest struct {
-	Name string `json:"name"`
+	Age    int     `json:"age"`
+	Height float64 `json:"height"`
+	Name   string  `json:"name"`
 }
 
 type User struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Age    int     `json:"age"`
+	Height float64 `json:"height"`
+	Id     string  `json:"id"`
+	Name   string  `json:"name"`
 }

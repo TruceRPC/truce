@@ -4,12 +4,17 @@ import "strings"
 
 #resources: {
 	"User": {
-		fields: name: type: "string"
+		fields: {
+			name: type:   "string"
+			age: type:    "int"
+			height: type: "float64"
+		}
 	}
 	"Post": {
 		fields: {
 			title: type: "string"
-			body: type:  "string"
+			body: type:  "[]byte"
+			draft: type: "bool"
 		}
 	}
 }
