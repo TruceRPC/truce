@@ -1,7 +1,8 @@
 package main
 
 import (
-	"io/ioutil"
+	"bytes"
+	"io"
 	"os"
 
 	"cuelang.org/go/cue"
@@ -31,5 +32,27 @@ func main() {
 		panic(err)
 	}
 
-	_ = ioutil.WriteFile("./truce.go", v, 0644)
+	fi, err := os.OpenFile("./truce.go", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+
+	defer fi.Close()
+
+	buf := bytes.NewBuffer(v)
+	line, err := buf.ReadBytes('\n')
+	for ; err == nil; line, err = buf.ReadBytes('\n') {
+		if bytes.Contains(line, []byte("LookupField")) {
+			_, _ = fi.Write([]byte("\t//lint:ignore SA1019 until FieldByName is produced by cue gocode https://github.com/cuelang/cue/pull/664\n"))
+		}
+
+		_, _ = fi.Write(line)
+	}
+
+	if err != io.EOF {
+		panic(err)
+	}
+
+	// write the final line
+	_, _ = fi.Write(line)
 }
