@@ -17,7 +17,7 @@
                         "type": "string"
                     },
                     "draft": {
-                        "type": "bool"
+                        "type": "boolean"
                     },
                     "id": {
                         "type": "string"
@@ -70,7 +70,7 @@
                         "type": "string"
                     },
                     "draft": {
-                        "type": "bool"
+                        "type": "boolean"
                     }
                 }
             },
@@ -85,7 +85,7 @@
                         "type": "string"
                     },
                     "draft": {
-                        "type": "bool"
+                        "type": "boolean"
                     }
                 }
             },

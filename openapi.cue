@@ -23,7 +23,14 @@ _#schemaObj: [_=string]: {
 		_base:   "number"
 		_format: "float"
 	}
-	if trimmed != "int" && trimmed != "float64" && trimmed != "byte" {
+	if trimmed == "bool" {
+		_base:   "boolean"
+		_format: ""
+	}
+	if trimmed != "int" &&
+		trimmed != "bool" &&
+		trimmed != "float64" &&
+		trimmed != "byte" {
 		_base:   trimmed
 		_format: ""
 	}
