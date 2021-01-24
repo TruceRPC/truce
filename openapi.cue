@@ -81,23 +81,21 @@ openapi3: {
 								operationId: fnName
 								// request parameters
 								_parameters: [
-									for argDef in fnDef.arguments {
-										let fnArg = fnDef.transports.http.arguments[argDef.name]
+									for argDef in fnDef.arguments
+									let fnArg = fnDef.transports.http.arguments[argDef.name]
+									if fnArg != null && fnArg.from != "" && fnArg.from != "body" {
 										let schemaObj = _#schemaObj & {schema: {_type: argDef.type}}
-										if fnArg != null && fnArg.from != "" && fnArg.from != "body" {
-											{
-												name:        argDef.name
-												in:          fnArg.from
-												description: "\(argDef.name) from \(fnArg.from)"
-												required:    true
-												schema:      schemaObj.schema
-											}
+										{
+											name:        argDef.name
+											in:          fnArg.from
+											description: "\(argDef.name) from \(fnArg.from)"
+											required:    true
+											schema:      schemaObj.schema
 										}
 									},
 								]
-								_nonEmptyParameters: [ for p in _parameters if len(p) > 0 {p}]
-								if len(_nonEmptyParameters) > 0 {
-									parameters: _nonEmptyParameters
+								if len(_parameters) > 0 {
+									parameters: _parameters
 								}
 
 								// request body
