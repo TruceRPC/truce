@@ -31,10 +31,12 @@
                         "type": "string"
                     },
                     "age": {
-                        "type": "integer"
+                        "type": "integer",
+                        "format": "int64"
                     },
                     "height": {
-                        "type": "number"
+                        "type": "number",
+                        "format": "float"
                     },
                     "id": {
                         "type": "string"
@@ -94,10 +96,12 @@
                         "type": "string"
                     },
                     "age": {
-                        "type": "integer"
+                        "type": "integer",
+                        "format": "int64"
                     },
                     "height": {
-                        "type": "number"
+                        "type": "number",
+                        "format": "float"
                     }
                 }
             },
@@ -108,10 +112,12 @@
                         "type": "string"
                     },
                     "age": {
-                        "type": "integer"
+                        "type": "integer",
+                        "format": "int64"
                     },
                     "height": {
-                        "type": "number"
+                        "type": "number",
+                        "format": "float"
                     }
                 }
             }

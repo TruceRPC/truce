@@ -16,13 +16,16 @@ _#schemaObj: [_=string]: {
 
 	let trimmed = strings.TrimPrefix("\(_type)", "[]")
 	if trimmed == "int" {
-		_base: "integer"
+		_base:   "integer"
+		_format: "int64"
 	}
 	if trimmed == "float64" {
-		_base: "number"
+		_base:   "number"
+		_format: "float"
 	}
 	if trimmed != "int" && trimmed != "float64" && trimmed != "byte" {
-		_base: trimmed
+		_base:   trimmed
+		_format: ""
 	}
 	if _type == "[]byte" {
 		// []byte is represented on the wire as base64([]byte("..."))
@@ -34,7 +37,6 @@ _#schemaObj: [_=string]: {
 	if _type != "[]byte" {
 		_isArray: _type =~ "^[[][]].*$"
 		_isPrim:  _type =~ "^([]][]])?[a-z].*$"
-		_format:  ""
 	}
 
 	if _isMap {
