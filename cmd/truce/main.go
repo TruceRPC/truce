@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/georgemac/truce"
-	"github.com/georgemac/truce/internal/generate/gocode"
-	"github.com/georgemac/truce/internal/generate/openapi"
+	"github.com/TruceRPC/truce"
+	"github.com/TruceRPC/truce/internal/generate/gocode"
+	"github.com/TruceRPC/truce/internal/generate/openapi"
 )
 
 func main() {

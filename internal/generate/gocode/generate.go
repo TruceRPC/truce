@@ -6,8 +6,8 @@ import (
 	"io"
 	"text/template"
 
-	"github.com/georgemac/truce"
-	"github.com/georgemac/truce/internal/generate/gocode/gotemplate"
+	"github.com/TruceRPC/truce"
+	"github.com/TruceRPC/truce/internal/generate/gocode/gotemplate"
 )
 
 type Generator struct {

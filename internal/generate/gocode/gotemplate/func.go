@@ -5,7 +5,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/georgemac/truce"
+	"github.com/TruceRPC/truce"
 )
 
 var tmplFuncs = template.FuncMap{

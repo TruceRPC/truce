@@ -1,1 +1,1 @@
-module: "github.com/georgemac/truce"
+module: "github.com/TruceRPC/truce"

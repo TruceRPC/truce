@@ -3,7 +3,7 @@ package gotemplate
 import (
 	"testing"
 
-	"github.com/georgemac/truce"
+	"github.com/TruceRPC/truce"
 	"gotest.tools/v3/assert"
 )
 

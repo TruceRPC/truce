@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
-	"github.com/georgemac/truce"
+	"github.com/TruceRPC/truce"
 	"gotest.tools/v3/assert"
 )
 

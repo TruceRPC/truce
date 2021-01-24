@@ -19,7 +19,7 @@ func main() {
 	inst := cue.Build(load.Instances([]string{"."}, &load.Config{
 		Dir:        cwd,
 		ModuleRoot: cwd,
-		Module:     "github.com/georgemac/truce",
+		Module:     "github.com/TruceRPC/truce",
 	}))[0]
 	if err := inst.Err; err != nil {
 		panic(err)
