@@ -1,0 +1,346 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "example",
+        "version": "1"
+    },
+    "components": {
+        "schemas": {
+            "Post": {
+                "type": "object",
+                "properties": {
+                    "body": {
+                        "type": "string",
+                        "format": "base64"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "draft": {
+                        "type": "bool"
+                    },
+                    "id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "height": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "NotAuthorized": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "NotFound": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PutPostRequest": {
+                "type": "object",
+                "properties": {
+                    "body": {
+                        "type": "string",
+                        "format": "base64"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "draft": {
+                        "type": "bool"
+                    }
+                }
+            },
+            "PatchPostRequest": {
+                "type": "object",
+                "properties": {
+                    "body": {
+                        "type": "string",
+                        "format": "base64"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "draft": {
+                        "type": "bool"
+                    }
+                }
+            },
+            "PutUserRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "height": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                }
+            },
+            "PatchUserRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "age": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "height": {
+                        "type": "number",
+                        "format": "float"
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/posts/{id}": {
+            "get": {
+                "operationId": "GetPost",
+                "responses": {
+                    "200": {
+                        "description": "GetPost operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "PatchPost",
+                "responses": {
+                    "200": {
+                        "description": "PatchPost operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "description": "PatchPost operation request body",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchPostRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/posts": {
+            "get": {
+                "operationId": "GetPosts",
+                "responses": {
+                    "200": {
+                        "description": "GetPosts operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Post"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "PutPost",
+                "responses": {
+                    "200": {
+                        "description": "PutPost operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "description": "PutPost operation request body",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PutPostRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "operationId": "GetUser",
+                "responses": {
+                    "200": {
+                        "description": "GetUser operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "PatchUser",
+                "responses": {
+                    "200": {
+                        "description": "PatchUser operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "description": "PatchUser operation request body",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchUserRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "operationId": "GetUsers",
+                "responses": {
+                    "200": {
+                        "description": "GetUsers operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "PutUser",
+                "responses": {
+                    "200": {
+                        "description": "PutUser operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "requestBody": {
+                    "description": "PutUser operation request body",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PutUserRequest"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
