@@ -7,6 +7,10 @@ build: trucegen ## Build truce into bin folder
 	@echo "Building Truce from source."
 	@$(GO) build -o bin/truce ./cmd/truce/...
 
+.PHONY: test
+test: build
+	$(GO) test -race ./...
+
 .PHONY: fmt
 fmt: deps ## Run go fmt -s and cue fmt all over the shop
 	@cue fmt truce.cue

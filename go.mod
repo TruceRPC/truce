@@ -1,4 +1,4 @@
-module github.com/georgemac/truce
+module github.com/TruceRPC/truce
 
 go 1.15
 

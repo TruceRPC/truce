@@ -5,12 +5,47 @@ import "strings"
 import "regexp"
 
 _#schemaObj: [_=string]: {
+	_type: string
+
 	let mapMatcher = "^map[[]([^]])*[]](.*)$"
-	_type:    string
-	_isPrim:  _type =~ "^([]][]])?[a-z].*$"
-	_isArray: _type =~ "^[[][]].*$"
 	_isMap:   _type =~ mapMatcher
-	_trimmed: strings.TrimPrefix("\(_type)", "[]")
+	_isArray: bool
+	_isPrim:  bool
+	_base:    string
+	_format:  string
+
+	let trimmed = strings.TrimPrefix("\(_type)", "[]")
+	if trimmed == "int" {
+		_base:   "integer"
+		_format: "int64"
+	}
+	if trimmed == "float64" {
+		_base:   "number"
+		_format: "float"
+	}
+	if trimmed == "bool" {
+		_base:   "boolean"
+		_format: ""
+	}
+	if trimmed != "int" &&
+		trimmed != "bool" &&
+		trimmed != "float64" &&
+		trimmed != "byte" {
+		_base:   trimmed
+		_format: ""
+	}
+	if _type == "[]byte" {
+		// []byte is represented on the wire as base64([]byte("..."))
+		_isArray: false
+		_isPrim:  true
+		_base:    "string"
+		_format:  "base64"
+	}
+	if _type != "[]byte" {
+		_isArray: _type =~ "^[[][]].*$"
+		_isPrim:  _type =~ "^([]][]])?[a-z].*$"
+	}
+
 	if _isMap {
 		_mapParts:  regexp.FindAllSubmatch(mapMatcher, _type, 3)
 		_isValPrim: _mapParts[2] =~ "^([]][]])?[a-z].*$"
@@ -30,19 +65,22 @@ _#schemaObj: [_=string]: {
 			type: "array"
 			items: {
 				if _isPrim {
-					"type": _trimmed
+					"type": _base
 				}
 				if !_isPrim {
-					"$ref": "#/components/schemas/\(_trimmed)"
+					"$ref": "#/components/schemas/\(_base)"
 				}
 			}
 		}
 		if !_isArray {
 			if _isPrim {
-				"type": _trimmed
+				"type": _base
+				if _format != "" {
+					"format": _format
+				}
 			}
 			if !_isPrim {
-				"$ref": "#/components/schemas/\(_trimmed)"
+				"$ref": "#/components/schemas/\(_base)"
 			}
 		}
 	}
@@ -64,9 +102,8 @@ openapi3: {
 								type: "object"
 								properties: {
 									for fieldName, fieldDef in typeDef.fields {
-										"\(fieldName)": {
-											type: fieldDef.type
-										}
+										let schema = _#schemaObj & {schema: {_type: fieldDef.type}}
+										"\(fieldName)": schema.schema
 									}
 								}
 							}

@@ -3,8 +3,7 @@ package gotemplate
 import (
 	"testing"
 
-	"github.com/georgemac/truce"
-	"github.com/georgemac/truce/pkg/http"
+	"github.com/TruceRPC/truce"
 	"gotest.tools/v3/assert"
 )
 
@@ -126,36 +125,36 @@ func TestFlags(t *testing.T) {
 }
 
 func TestMethod(t *testing.T) {
-	v1 := method(&http.Function{Method: "GET"})
+	v1 := method(&Function{Method: "GET"})
 	assert.Equal(t, v1, "Get")
 
-	v2 := method(&http.Function{Method: "get"})
+	v2 := method(&Function{Method: "get"})
 	assert.Equal(t, v2, "Get")
 }
 
 func TestPath(t *testing.T) {
 	testcases := []struct {
 		name string
-		in   http.Path
+		in   Path
 		out  string
 	}{
 		{
 			name: "no variables",
-			in: http.Path{
+			in: Path{
 				{Type: "static", Value: "a"},
 			},
 			out: `"/a"`,
 		},
 		{
 			name: "single variable",
-			in: http.Path{
+			in: Path{
 				{Var: "x", Type: "variable", Value: "a"},
 			},
 			out: `fmt.Sprintf("/%v", x)`,
 		},
 		{
 			name: "multiple variables",
-			in: http.Path{
+			in: Path{
 				{Var: "x", Type: "variable", Value: "a"},
 				{Var: "y", Type: "variable", Value: "b"},
 				{Var: "z", Type: "variable", Value: "c"},
@@ -164,7 +163,7 @@ func TestPath(t *testing.T) {
 		},
 		{
 			name: "variables and static elements",
-			in: http.Path{
+			in: Path{
 				{Value: "api", Type: "static"},
 				{Var: "x", Type: "variable", Value: "a"},
 				{Var: "y", Type: "variable", Value: "b"},
@@ -176,7 +175,7 @@ func TestPath(t *testing.T) {
 	}
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			v := path(&http.Function{Path: tc.in})
+			v := path(&Function{Path: tc.in})
 			assert.Equal(t, v, tc.out)
 		})
 	}

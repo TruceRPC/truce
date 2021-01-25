@@ -1,4 +1,4 @@
-package generate
+package gocode
 
 type Option func(*Generator)
 

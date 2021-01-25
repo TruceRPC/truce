@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 
-	types "github.com/georgemac/truce/example"
+	types "github.com/TruceRPC/truce/example"
 )
 
 var errNotFound = errors.New("not found")
