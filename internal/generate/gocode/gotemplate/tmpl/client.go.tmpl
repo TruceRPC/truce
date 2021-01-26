@@ -34,7 +34,7 @@ func New{{.ClientName}}(host string) (*{{.ClientName}}, error) {
 {{ $ctxt := . }}
 {{- range .Functions }}
 func (c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
-    u, err := c.host.Parse({{ path . }})
+    u, err := c.host.Parse({{ pathJoin .Path }})
     if err != nil {
         return
     }

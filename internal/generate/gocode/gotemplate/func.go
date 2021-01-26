@@ -15,7 +15,7 @@ var tmplFuncs = template.FuncMap{
 	"errorFmt":  errorFmt,
 	"method":    method,
 	"name":      name,
-	"path":      path,
+	"pathJoin":  pathJoin,
 	"signature": signature,
 	"tags":      tags,
 }
@@ -53,22 +53,22 @@ func signature(f truce.Function) string {
 	return builder.String()
 }
 
-func path(b *Function) string {
-	if len(b.Path) == 0 {
-		return fmt.Sprintf("%q", b.Path)
+func pathJoin(path Path) string {
+	if len(path) == 0 {
+		return fmt.Sprintf("%q", path)
 	}
 
 	var hasVariables bool
-	for _, elem := range b.Path {
+	for _, elem := range path {
 		if elem.Type == "variable" {
 			hasVariables = true
 		}
 	}
 
 	if hasVariables {
-		return fmt.Sprintf(`fmt.Sprintf(%q, %s)`, b.Path.FmtString(), b.Path.ArgString())
+		return fmt.Sprintf(`fmt.Sprintf(%q, %s)`, path.FmtString(), path.ArgString())
 	}
-	return fmt.Sprintf(`%q`, b.Path.FmtString())
+	return fmt.Sprintf(`%q`, path.FmtString())
 }
 
 func args(f truce.Function) (v string) {
