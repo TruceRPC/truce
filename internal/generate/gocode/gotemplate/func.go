@@ -37,18 +37,16 @@ func signature(f truce.Function) string {
 	fmt.Fprintf(builder, "%s(ctxt context.Context, ", f.Name)
 	for i, arg := range f.Arguments {
 		if i > 0 {
-			builder.Write([]byte(", "))
+			builder.WriteString(", ")
 		}
-
 		fmt.Fprintf(builder, "v%d %s", i, arg.Type)
 	}
 
-	builder.Write([]byte(") ("))
+	builder.WriteString(") (")
 	if rtn := f.Return; rtn.Name != "" {
 		fmt.Fprintf(builder, "rtn %s, ", rtn.Type)
 	}
-
-	builder.Write([]byte("err error)"))
+	builder.WriteString("err error)")
 
 	return builder.String()
 }
