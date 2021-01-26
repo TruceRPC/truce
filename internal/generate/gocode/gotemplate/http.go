@@ -12,11 +12,14 @@ import (
 	"github.com/TruceRPC/truce"
 )
 
+// Bindings contains Go-specific details derived from a generalized Truce API
+// specification.
 type Bindings struct {
 	Errors    []Error
 	Functions map[string]*Function
 }
 
+// BindingsFrom derives a set of Bindings from the underlying API specification.
 func BindingsFrom(api truce.API) (Bindings, error) {
 	b := Bindings{
 		Functions: map[string]*Function{},
@@ -80,11 +83,14 @@ func BindingsFrom(api truce.API) (Bindings, error) {
 	return b, nil
 }
 
+// Error is an error that can inform an HTTP response.
 type Error struct {
 	Definition truce.Type
 	StatusCode int
 }
 
+// Function contains information about a Go function and its associated routing
+// information.
 type Function struct {
 	Definition  truce.Function
 	Method      string
@@ -97,6 +103,8 @@ type Function struct {
 	ReturnIsPtr bool
 }
 
+// Path is a collection of path segments (Elements) that represent a route's URL
+// path.
 type Path []Element
 
 func parsePath(vars map[string]string, v string) (p Path) {
@@ -125,6 +133,7 @@ func parsePath(vars map[string]string, v string) (p Path) {
 	return
 }
 
+// String implements fmt.Stringer
 func (p Path) String() (v string) {
 	for _, e := range p {
 		v += "/" + e.String()
@@ -132,6 +141,8 @@ func (p Path) String() (v string) {
 	return
 }
 
+// FmtString returns the formatting strings of each Element as a joined path to
+// be used as a sprintf formatting string.
 func (p Path) FmtString() (v string) {
 	for _, e := range p {
 		v += "/" + e.FmtString()
@@ -139,6 +150,7 @@ func (p Path) FmtString() (v string) {
 	return
 }
 
+// ArgString joins the Path's variable set into a list of arguments.
 func (p Path) ArgString() (v string) {
 	var i int
 	for _, e := range p {
@@ -154,12 +166,14 @@ func (p Path) ArgString() (v string) {
 	return
 }
 
+// Element is a Path segment. It can either be static or variable.
 type Element struct {
 	Type  string
 	Value string
 	Var   string
 }
 
+// String implements fmt.Stringer
 func (e Element) String() string {
 	switch e.Type {
 	case "static":
@@ -171,6 +185,7 @@ func (e Element) String() string {
 	}
 }
 
+// FmtString returns a sprintf formatting string for a Path segment
 func (e Element) FmtString() string {
 	switch e.Type {
 	case "static":
@@ -182,6 +197,7 @@ func (e Element) FmtString() string {
 	}
 }
 
+// NewFunction creates a Go-specific function definition from the abstract Truce definitions.
 func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error) {
 	if function.Transports.HTTP == nil {
 		return nil, nil
