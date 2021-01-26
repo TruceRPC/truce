@@ -81,7 +81,7 @@ func (_c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
         {{- template "errorReturn" . -}}
     }
 
-    _resp, _err = c.client.Do(_req.WithContext(ctxt))
+    _resp, _err = _c.client.Do(_req.WithContext(ctxt))
     if _err != nil {
         {{- template "errorReturn" . -}}
     }
@@ -98,8 +98,10 @@ func (_c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
     {{ if .HasReturn -}}
     {{ if .ReturnIsPtr -}}
     _rtn := &{{ .ReturnType }}{}
+	{{ else }}
+	var _rtn {{ .ReturnType }}
     {{- end }}
-    _err = json.NewDecoder(resp.Body).Decode({{ if not .ReturnIsPtr }}&{{ end }}_rtn)
+    _err = json.NewDecoder(_resp.Body).Decode({{ if not .ReturnIsPtr }}&{{ end }}_rtn)
     return _rtn, _err
     {{ else }}
     return nil

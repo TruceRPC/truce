@@ -46,7 +46,7 @@ func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) 
 		return Post{}, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return Post{}, _err
 	}
@@ -60,7 +60,8 @@ func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) 
 		return Post{}, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn Post
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
@@ -80,7 +81,7 @@ func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 		return nil, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return nil, _err
 	}
@@ -94,7 +95,8 @@ func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 		return nil, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn []Post
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
@@ -114,7 +116,7 @@ func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) 
 		return User{}, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return User{}, _err
 	}
@@ -128,7 +130,8 @@ func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) 
 		return User{}, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn User
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
@@ -148,7 +151,7 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 		return nil, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return nil, _err
 	}
@@ -162,7 +165,8 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 		return nil, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn []User
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
@@ -188,7 +192,7 @@ func (_c *ExampleClient) PatchPost(ctxt context.Context, id string, post PatchPo
 		return Post{}, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return Post{}, _err
 	}
@@ -202,7 +206,8 @@ func (_c *ExampleClient) PatchPost(ctxt context.Context, id string, post PatchPo
 		return Post{}, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn Post
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
@@ -228,7 +233,7 @@ func (_c *ExampleClient) PatchUser(ctxt context.Context, id string, user PatchUs
 		return User{}, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return User{}, _err
 	}
@@ -242,7 +247,8 @@ func (_c *ExampleClient) PatchUser(ctxt context.Context, id string, user PatchUs
 		return User{}, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn User
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
@@ -268,7 +274,7 @@ func (_c *ExampleClient) PutPost(ctxt context.Context, post PutPostRequest) (Pos
 		return Post{}, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return Post{}, _err
 	}
@@ -282,7 +288,8 @@ func (_c *ExampleClient) PutPost(ctxt context.Context, post PutPostRequest) (Pos
 		return Post{}, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn Post
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
@@ -308,7 +315,7 @@ func (_c *ExampleClient) PutUser(ctxt context.Context, user PutUserRequest) (Use
 		return User{}, _err
 	}
 
-	_resp, _err = c.client.Do(_req.WithContext(ctxt))
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
 		return User{}, _err
 	}
@@ -322,7 +329,8 @@ func (_c *ExampleClient) PutUser(ctxt context.Context, user PutUserRequest) (Use
 		return User{}, _err
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	var _rtn User
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }
 
