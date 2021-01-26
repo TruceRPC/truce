@@ -17,9 +17,9 @@ var _ = strconv.Itoa
 
 type Service interface {
 	GetPost(ctxt context.Context, id string) (Post, error)
-	GetPosts(ctxt context.Context, limit int64) ([]Post, error)
+	GetPosts(ctxt context.Context, limit int64, since time.Time) ([]Post, error)
 	GetUser(ctxt context.Context, id string) (User, error)
-	GetUsers(ctxt context.Context, limit int64) ([]User, error)
+	GetUsers(ctxt context.Context, limit int64, since time.Time) ([]User, error)
 	NamespacedGetPost(ctxt context.Context, namespace string, id string) (Post, error)
 	NamespacedGetUser(ctxt context.Context, namespace string, id string) (User, error)
 	PatchPost(ctxt context.Context, id string, post PatchPostRequest) (Post, error)
@@ -77,7 +77,13 @@ func (c *ExampleServer) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	r0, err := c.srv.GetPosts(r.Context(), limit)
+	q1 := r.URL.Query().Get("timestamp")
+	since, err := time.Parse(time.RFC3339, q1)
+	if err != nil {
+		return
+	}
+
+	r0, err := c.srv.GetPosts(r.Context(), limit, since)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -114,7 +120,13 @@ func (c *ExampleServer) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	r0, err := c.srv.GetUsers(r.Context(), limit)
+	q1 := r.URL.Query().Get("timestamp")
+	since, err := time.Parse(time.RFC3339, q1)
+	if err != nil {
+		return
+	}
+
+	r0, err := c.srv.GetUsers(r.Context(), limit, since)
 	if err != nil {
 		handleError(w, err)
 		return

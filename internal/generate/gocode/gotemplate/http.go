@@ -117,16 +117,16 @@ func (q QueryParam) FromStringVar() (v string) {
 	v = fmt.Sprintf("q%d := r.URL.Query().Get(\"%s\")\n", q.Pos, q.QueryVar)
 	switch q.Type {
 	case "int":
-		v += fmt.Sprintf("%s, err := strconv.ParseInt(q%d, 10, 64); if err != nil { return }",
+		v += fmt.Sprintf("%s, err := strconv.ParseInt(q%d, 10, 64); if err != nil { return }\n",
 			q.GoVar, q.Pos)
 	case "float64":
-		v += fmt.Sprintf("%s, err := strconv.ParseFloat(q%d, 10, 64); if err != nil { return }",
+		v += fmt.Sprintf("%s, err := strconv.ParseFloat(q%d, 10, 64); if err != nil { return }\n",
 			q.GoVar, q.Pos)
 	case "bool":
-		v += fmt.Sprintf("%s, err := strconv.ParseBool(q%d); if err != nil { return }",
+		v += fmt.Sprintf("%s, err := strconv.ParseBool(q%d); if err != nil { return }\n",
 			q.GoVar, q.Pos)
 	case "timestamp":
-		v += fmt.Sprintf("%s, err := time.Parse(time.RFC3339, q%d); if err != nil { return }",
+		v += fmt.Sprintf("%s, err := time.Parse(time.RFC3339, q%d); if err != nil { return }\n",
 			q.GoVar, q.Pos)
 	default:
 		v += fmt.Sprintf("%s := q%d", q.GoVar, q.Pos)

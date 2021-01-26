@@ -72,6 +72,7 @@ specifications: {
 				"Get\(resourceName)s": {
 					arguments: [
 						{name: "limit", type: "int"},
+						{name: "since", type: "timestamp"},
 					]
 					return: {
 						name: "\(strings.ToLower(resourceName))s"
@@ -81,6 +82,7 @@ specifications: {
 						path:                    "/\(strings.ToLower(resourceName))s"
 						method:                  "GET"
 						arguments: limit: {from: "query", var: "limit"}
+						arguments: since: {from: "query", var: "timestamp"}
 					}
 				}
 				"Put\(resourceName)": {

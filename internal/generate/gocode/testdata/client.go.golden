@@ -67,7 +67,7 @@ func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) 
 	return _rtn, _err
 }
 
-func (_c *ExampleClient) GetPosts(ctxt context.Context, limit int64) ([]Post, error) {
+func (_c *ExampleClient) GetPosts(ctxt context.Context, limit int64, since time.Time) ([]Post, error) {
 	_u, _err := _c.host.Parse("/api/v1/posts")
 	if _err != nil {
 		return nil, _err
@@ -75,6 +75,7 @@ func (_c *ExampleClient) GetPosts(ctxt context.Context, limit int64) ([]Post, er
 
 	_query := _u.Query()
 	_query.Set("limit", fmt.Sprintf("%v", limit))
+	_query.Set("timestamp", since.Format(time.RFC3339))
 	_u.RawQuery = _query.Encode()
 
 	var (
@@ -141,7 +142,7 @@ func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) 
 	return _rtn, _err
 }
 
-func (_c *ExampleClient) GetUsers(ctxt context.Context, limit int64) ([]User, error) {
+func (_c *ExampleClient) GetUsers(ctxt context.Context, limit int64, since time.Time) ([]User, error) {
 	_u, _err := _c.host.Parse("/api/v1/users")
 	if _err != nil {
 		return nil, _err
@@ -149,6 +150,7 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context, limit int64) ([]User, er
 
 	_query := _u.Query()
 	_query.Set("limit", fmt.Sprintf("%v", limit))
+	_query.Set("timestamp", since.Format(time.RFC3339))
 	_u.RawQuery = _query.Encode()
 
 	var (
