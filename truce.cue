@@ -62,9 +62,10 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 	fields: [n=_]: #Field & {"name": n}
 }
 
-#primitives: ["bool", "int", "float64", "byte", "string"]
+#primitives: ["bool", "int", "float64", "byte", "string", "object", "timestamp"]
 #slices: [ for x in #primitives {"[]\(x)"}]
-#all: #primitives + #slices
+#pointers: [ for x in #primitives {"*\(x)"}]
+#all: #primitives + #slices + #pointers
 
 #Field: {
 	name: =~"^[a-z][a-zA-Z]*$"

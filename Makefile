@@ -7,6 +7,10 @@ build: trucegen ## Build truce into bin folder
 	@echo "Building Truce from source."
 	@$(GO) build -o bin/truce ./cmd/truce/...
 
+.PHONY: install
+install: trucegen ## Install truce globally
+	$(GO) install ./cmd/truce/...
+
 .PHONY: test
 test: build
 	$(GO) test -race ./...

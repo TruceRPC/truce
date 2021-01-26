@@ -13,12 +13,13 @@ var tmplFuncs = template.FuncMap{
 	"args":            args,
 	"backtick":        backtick,
 	"errorFmt":        errorFmt,
+	"goType":          goType,
 	"method":          method,
 	"name":            name,
 	"pathJoin":        pathJoin,
 	"signature":       signature,
-	"tags":            tags,
 	"stringHasPrefix": strings.HasPrefix,
+	"tags":            tags,
 }
 
 func name(f truce.Field) (v string) {
@@ -27,6 +28,21 @@ func name(f truce.Field) (v string) {
 		v += strings.Title(p)
 	}
 	return
+}
+
+func goType(typ string) string {
+	switch typ {
+	case "object":
+		return "map[string]interface{}"
+	case "timestamp", "*timestamp":
+		if typ[0] == '*' {
+			return "*time.Time"
+		}
+
+		return "time.Time"
+	default:
+		return typ
+	}
 }
 
 func tags(f truce.Field) string {
@@ -40,12 +56,12 @@ func signature(f truce.Function) string {
 		if i > 0 {
 			builder.WriteString(", ")
 		}
-		fmt.Fprintf(builder, "%s %s", arg.Name, arg.Type)
+		fmt.Fprintf(builder, "%s %s", arg.Name, goType(arg.Type))
 	}
 
 	builder.WriteString(") (")
 	if rtn := f.Return; rtn.Name != "" {
-		fmt.Fprintf(builder, "%s, ", rtn.Type)
+		fmt.Fprintf(builder, "%s, ", goType(rtn.Type))
 	}
 	builder.WriteString("error)")
 

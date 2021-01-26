@@ -12,10 +12,12 @@ import (
 "context"
 "bytes"
 "errors"
+"time"
 {{ .Imports }}
 )
 
 var _ = bytes.Compare
+var _ = time.After
 
 type {{.ClientName}} struct {
     client *http.Client
@@ -36,10 +38,11 @@ func New{{.ClientName}}(host string) (*{{.ClientName}}, error) {
     {{- if .ReturnIsPtr -}}
         return nil, _err
     {{ else }}
-	{{- if stringHasPrefix .ReturnType "[]" }}
+	{{- $goType := goType .ReturnType -}}
+	{{- if stringHasPrefix $goType "[]" }}
         return nil, _err
 	{{- else }}
-        return {{ .ReturnType }}{}, _err
+        return {{ goType .ReturnType }}{}, _err
 	{{- end }}
     {{- end }}
 {{ else }}
@@ -97,9 +100,9 @@ func (_c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
 
     {{ if .HasReturn -}}
     {{ if .ReturnIsPtr -}}
-    _rtn := &{{ .ReturnType }}{}
+    _rtn := &{{goType  .ReturnType }}{}
 	{{ else }}
-	var _rtn {{ .ReturnType }}
+	var _rtn {{goType  .ReturnType }}
     {{- end }}
     _err = json.NewDecoder(_resp.Body).Decode({{ if not .ReturnIsPtr }}&{{ end }}_rtn)
     return _rtn, _err

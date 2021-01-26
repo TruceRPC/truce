@@ -4,7 +4,10 @@ package example
 
 import (
 	"fmt"
+	"time"
 )
+
+var _ = time.After
 
 type NotAuthorized struct {
 	Message string `json:"message"`
@@ -23,39 +26,45 @@ func (e NotFound) Error() string {
 }
 
 type PatchPostRequest struct {
-	Body  []byte `json:"body"`
-	Draft bool   `json:"draft"`
-	Title string `json:"title"`
+	Body    []byte     `json:"body"`
+	Created *time.Time `json:"created"`
+	Draft   bool       `json:"draft"`
+	Title   string     `json:"title"`
 }
 
 type PatchUserRequest struct {
-	Age    int     `json:"age"`
-	Height float64 `json:"height"`
-	Name   string  `json:"name"`
+	Age    int                    `json:"age"`
+	Height float64                `json:"height"`
+	Labels map[string]interface{} `json:"labels"`
+	Name   string                 `json:"name"`
 }
 
 type Post struct {
-	Body  []byte `json:"body"`
-	Draft bool   `json:"draft"`
-	Id    string `json:"id"`
-	Title string `json:"title"`
+	Body    []byte     `json:"body"`
+	Created *time.Time `json:"created"`
+	Draft   bool       `json:"draft"`
+	Id      string     `json:"id"`
+	Title   string     `json:"title"`
 }
 
 type PutPostRequest struct {
-	Body  []byte `json:"body"`
-	Draft bool   `json:"draft"`
-	Title string `json:"title"`
+	Body    []byte     `json:"body"`
+	Created *time.Time `json:"created"`
+	Draft   bool       `json:"draft"`
+	Title   string     `json:"title"`
 }
 
 type PutUserRequest struct {
-	Age    int     `json:"age"`
-	Height float64 `json:"height"`
-	Name   string  `json:"name"`
+	Age    int                    `json:"age"`
+	Height float64                `json:"height"`
+	Labels map[string]interface{} `json:"labels"`
+	Name   string                 `json:"name"`
 }
 
 type User struct {
-	Age    int     `json:"age"`
-	Height float64 `json:"height"`
-	Id     string  `json:"id"`
-	Name   string  `json:"name"`
+	Age    int                    `json:"age"`
+	Height float64                `json:"height"`
+	Id     string                 `json:"id"`
+	Labels map[string]interface{} `json:"labels"`
+	Name   string                 `json:"name"`
 }

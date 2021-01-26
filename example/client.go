@@ -12,9 +12,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 var _ = bytes.Compare
+var _ = time.After
 
 type Client struct {
 	client *http.Client
