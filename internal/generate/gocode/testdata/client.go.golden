@@ -345,7 +345,6 @@ func checkResponse(resp *http.Response) error {
 		}
 
 		return v
-
 	default:
 		return errors.New("unexpected status code")
 	}
