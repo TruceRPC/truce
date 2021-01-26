@@ -2,6 +2,7 @@ package gotemplate
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -86,11 +87,20 @@ func method(b *Function) string {
 }
 
 func errorFmt(t truce.Type) string {
+	// Sort the fields
+	var fields []truce.Field
+	for _, f := range t.Fields {
+		fields = append(fields, f)
+	}
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Name < fields[j].Name
+	})
+
 	var (
 		i              int
 		fmtStr, argStr string
 	)
-	for _, field := range t.Fields {
+	for _, field := range fields {
 		if i > 0 {
 			fmtStr += " "
 			argStr += ", "
