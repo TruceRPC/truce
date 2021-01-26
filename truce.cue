@@ -67,7 +67,7 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 #all: #primitives + #slices
 
 #Field: {
-	name: string
+	name: =~"^[a-z][a-zA-Z]*$"
 	type: or(#all) | =~"map[[][*]?[A-Za-z]+[]][*]?[A-Za-z]+" | =~"^[*]?[A-Z][a-zA-Z]*$" | =~"^[[][]][*]?[A-Z][a-zA-Z]*?" // can be primitive, Custom, *Custom, []primitive, []Custom, []*Custom.
 }
 
