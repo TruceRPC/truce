@@ -74,9 +74,9 @@ func (g Generator) WriteServerTo(w io.Writer, opts ...Option) error {
 	return writeGo(w, t, g.context)
 }
 
-func writeGo(w io.Writer, tmpl *template.Template, context interface{}) error {
+func writeGo(w io.Writer, tmpl *template.Template, c context) error {
 	buf := &bytes.Buffer{}
-	if err := tmpl.Execute(buf, context); err != nil {
+	if err := tmpl.Execute(buf, c); err != nil {
 		return err
 	}
 
