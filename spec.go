@@ -103,14 +103,6 @@ type ArgumentValue struct {
 	Value string `cue:"value"`
 }
 
-type TypeName string
-
-const (
-	StringTypeName = TypeName("string")
-	FloatTypeName  = TypeName("float")
-	IntTypeName    = TypeName("int")
-)
-
 type Type struct {
 	Name   string           `cue:"name"`
 	Type   string           `cue:"type"`
@@ -118,6 +110,6 @@ type Type struct {
 }
 
 type Field struct {
-	Name string   `cue:"name"`
-	Type TypeName `cue:"type"`
+	Name string `cue:"name"`
+	Type string `cue:"type"`
 }

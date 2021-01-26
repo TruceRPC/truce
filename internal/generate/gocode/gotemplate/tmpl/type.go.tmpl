@@ -1,13 +1,16 @@
 package {{ .Package }}
 
 import (
+"time"
 {{ if ne (len .Errors) 0 }}"fmt"{{ end }}
 {{ .Imports }}
 )
 
+var _ = time.After
+
 {{ range $type := .Types }}
 type {{ $type.Name }} struct {
-{{ range $field := $type.Fields }}  {{name .}}   {{.Type}} {{tags .}}
+{{ range $field := $type.Fields }}  {{name .}}   {{goType .Type}} {{tags .}}
 {{ end }}
 }
 

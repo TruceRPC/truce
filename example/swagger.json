@@ -19,6 +19,10 @@
                     "draft": {
                         "type": "boolean"
                     },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
                     "id": {
                         "type": "string"
                     }
@@ -37,6 +41,9 @@
                     "height": {
                         "type": "number",
                         "format": "float"
+                    },
+                    "labels": {
+                        "type": "object"
                     },
                     "id": {
                         "type": "string"
@@ -71,6 +78,10 @@
                     },
                     "draft": {
                         "type": "boolean"
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             },
@@ -86,6 +97,10 @@
                     },
                     "draft": {
                         "type": "boolean"
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             },
@@ -102,6 +117,9 @@
                     "height": {
                         "type": "number",
                         "format": "float"
+                    },
+                    "labels": {
+                        "type": "object"
                     }
                 }
             },
@@ -118,6 +136,9 @@
                     "height": {
                         "type": "number",
                         "format": "float"
+                    },
+                    "labels": {
+                        "type": "object"
                     }
                 }
             }

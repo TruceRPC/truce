@@ -8,13 +8,15 @@ import "strings"
 			name: type:   "string"
 			age: type:    "int"
 			height: type: "float64"
+			labels: type: "object"
 		}
 	}
 	"Post": {
 		fields: {
-			title: type: "string"
-			body: type:  "[]byte"
-			draft: type: "bool"
+			title: type:   "string"
+			body: type:    "[]byte"
+			draft: type:   "bool"
+			created: type: "*timestamp"
 		}
 	}
 }

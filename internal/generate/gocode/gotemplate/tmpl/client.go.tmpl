@@ -10,10 +10,12 @@ import (
 "context"
 "bytes"
 "errors"
+"time"
 {{ .Imports }}
 )
 
 var _ = bytes.Compare
+var _ = time.After
 
 type {{.ClientName}} struct {
     client *http.Client
@@ -70,7 +72,7 @@ func (c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
         return
     }
 
-    {{if .HasReturn}}{{if .ReturnIsPtr}}rtn = &{{.ReturnType}}{}{{end}}
+    {{if .HasReturn}}{{if .ReturnIsPtr}}rtn = &{{goType .ReturnType}}{}{{end}}
     err = json.NewDecoder(resp.Body).Decode({{if not .ReturnIsPtr}}&{{end}}rtn){{end}}
 
     return

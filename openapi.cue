@@ -8,13 +8,14 @@ _#schemaObj: [_=string]: {
 	_type: string
 
 	let mapMatcher = "^map[[]([^]])*[]](.*)$"
+	let primMatcher = "^([]][]])?([*])?[a-z].*$"
 	_isMap:   _type =~ mapMatcher
 	_isArray: bool
 	_isPrim:  bool
 	_base:    string
 	_format:  string
 
-	let trimmed = strings.TrimPrefix("\(_type)", "[]")
+	let trimmed = strings.TrimPrefix(strings.TrimPrefix("\(_type)", "[]"), "*")
 	if trimmed == "int" {
 		_base:   "integer"
 		_format: "int64"
@@ -27,9 +28,14 @@ _#schemaObj: [_=string]: {
 		_base:   "boolean"
 		_format: ""
 	}
+	if trimmed == "timestamp" {
+		_base:   "string"
+		_format: "date-time"
+	}
 	if trimmed != "int" &&
 		trimmed != "bool" &&
 		trimmed != "float64" &&
+		trimmed != "timestamp" &&
 		trimmed != "byte" {
 		_base:   trimmed
 		_format: ""
@@ -43,12 +49,12 @@ _#schemaObj: [_=string]: {
 	}
 	if _type != "[]byte" {
 		_isArray: _type =~ "^[[][]].*$"
-		_isPrim:  _type =~ "^([]][]])?[a-z].*$"
+		_isPrim:  _type =~ primMatcher
 	}
 
 	if _isMap {
 		_mapParts:  regexp.FindAllSubmatch(mapMatcher, _type, 3)
-		_isValPrim: _mapParts[2] =~ "^([]][]])?[a-z].*$"
+		_isValPrim: _mapParts[2] =~ primMatcher
 
 		type: "object"
 		additionalProperties: {
@@ -126,8 +132,10 @@ openapi3: {
 												name:        argDef.name
 												in:          fnArg.from
 												description: "\(argDef.name) from \(fnArg.from)"
-												required:    true
-												schema:      schemaObj.schema
+												if fnArg.from == "path" {
+													required: true
+												}
+												schema: schemaObj.schema
 											}
 										}
 									},
