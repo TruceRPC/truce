@@ -32,6 +32,8 @@ func name(f truce.Field) (v string) {
 
 func goType(typ string) string {
 	switch typ {
+	case "int":
+		return "int64"
 	case "object":
 		return "map[string]interface{}"
 	case "timestamp", "*timestamp":

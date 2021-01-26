@@ -7,12 +7,14 @@ import (
 "encoding/json"
 "net/http"
 "time"
+"strconv"
 
 "github.com/go-chi/chi"
 {{ .Imports }}
 )
 
 var _ = time.After
+var _ = strconv.Itoa
 
 type Service interface {
     {{ range .Functions -}}
@@ -41,9 +43,9 @@ func New{{.ServerName}}(srv Service) *{{.ServerName}} {
 {{ range .Functions }}func (c *{{ $ctxt.ServerName }}) handle{{.Definition.Name}}(w http.ResponseWriter, r *http.Request) {
     {{- range .Path -}}
     {{ if eq .Type "variable" }}{{ .Var }} := chi.URLParam(r, "{{ .Value }}"){{ end }}
-    {{- end }}
+    {{ end }}
     {{- range $k, $v := .Query -}}
-    {{ $v }} := r.URL.Query().Get("{{ $k }}")
+    {{$v.FromStringVar}}
     {{- end }}
     {{- if ne .BodyVar "" }}
     var {{ .BodyVar }} {{ .BodyType }}

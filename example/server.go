@@ -6,18 +6,20 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi"
 )
 
 var _ = time.After
+var _ = strconv.Itoa
 
 type Service interface {
 	GetPost(ctxt context.Context, id string) (Post, error)
-	GetPosts(ctxt context.Context) ([]Post, error)
+	GetPosts(ctxt context.Context, limit int64) ([]Post, error)
 	GetUser(ctxt context.Context, id string) (User, error)
-	GetUsers(ctxt context.Context) ([]User, error)
+	GetUsers(ctxt context.Context, limit int64) ([]User, error)
 	PatchPost(ctxt context.Context, id string, post PatchPostRequest) (Post, error)
 	PatchUser(ctxt context.Context, id string, user PatchUserRequest) (User, error)
 	PutPost(ctxt context.Context, post PutPostRequest) (Post, error)
@@ -63,7 +65,12 @@ func (c *Server) handleGetPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handleGetPosts(w http.ResponseWriter, r *http.Request) {
-	r0, err := c.srv.GetPosts(r.Context())
+	q0 := r.URL.Query().Get("limit")
+	limit, err := strconv.ParseInt(q0, 10, 64)
+	if err != nil {
+		return
+	}
+	r0, err := c.srv.GetPosts(r.Context(), limit)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -92,7 +99,12 @@ func (c *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
-	r0, err := c.srv.GetUsers(r.Context())
+	q0 := r.URL.Query().Get("limit")
+	limit, err := strconv.ParseInt(q0, 10, 64)
+	if err != nil {
+		return
+	}
+	r0, err := c.srv.GetUsers(r.Context(), limit)
 	if err != nil {
 		handleError(w, err)
 		return

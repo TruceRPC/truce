@@ -67,11 +67,16 @@ func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) 
 	return _rtn, _err
 }
 
-func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
+func (_c *ExampleClient) GetPosts(ctxt context.Context, limit int64, since time.Time) ([]Post, error) {
 	_u, _err := _c.host.Parse("/api/v1/posts")
 	if _err != nil {
 		return nil, _err
 	}
+
+	_query := _u.Query()
+	_query.Set("limit", fmt.Sprintf("%v", limit))
+	_query.Set("timestamp", since.Format(time.RFC3339))
+	_u.RawQuery = _query.Encode()
 
 	var (
 		_body io.Reader
@@ -137,11 +142,16 @@ func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) 
 	return _rtn, _err
 }
 
-func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
+func (_c *ExampleClient) GetUsers(ctxt context.Context, limit int64, since time.Time) ([]User, error) {
 	_u, _err := _c.host.Parse("/api/v1/users")
 	if _err != nil {
 		return nil, _err
 	}
+
+	_query := _u.Query()
+	_query.Set("limit", fmt.Sprintf("%v", limit))
+	_query.Set("timestamp", since.Format(time.RFC3339))
+	_u.RawQuery = _query.Encode()
 
 	var (
 		_body io.Reader
@@ -168,6 +178,76 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 	}
 
 	var _rtn []User
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
+	return _rtn, _err
+}
+
+func (_c *ExampleClient) NamespacedGetPost(ctxt context.Context, namespace string, id string) (Post, error) {
+	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/namespace/%v/posts/%v", namespace, id))
+	if _err != nil {
+		return Post{}, _err
+	}
+
+	var (
+		_body io.Reader
+		_resp *http.Response
+	)
+
+	_req, _err := http.NewRequest("GET", _u.String(), _body)
+	if _err != nil {
+		return Post{}, _err
+	}
+
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
+	if _err != nil {
+		return Post{}, _err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, _resp.Body)
+		_ = _resp.Body.Close()
+	}()
+
+	if _err = _checkResponse(_resp); _err != nil {
+		return Post{}, _err
+	}
+
+	var _rtn Post
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
+	return _rtn, _err
+}
+
+func (_c *ExampleClient) NamespacedGetUser(ctxt context.Context, namespace string, id string) (User, error) {
+	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/namespace/%v/users/%v", namespace, id))
+	if _err != nil {
+		return User{}, _err
+	}
+
+	var (
+		_body io.Reader
+		_resp *http.Response
+	)
+
+	_req, _err := http.NewRequest("GET", _u.String(), _body)
+	if _err != nil {
+		return User{}, _err
+	}
+
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
+	if _err != nil {
+		return User{}, _err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, _resp.Body)
+		_ = _resp.Body.Close()
+	}()
+
+	if _err = _checkResponse(_resp); _err != nil {
+		return User{}, _err
+	}
+
+	var _rtn User
 	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
 	return _rtn, _err
 }

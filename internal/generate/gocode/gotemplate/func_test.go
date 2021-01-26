@@ -69,6 +69,39 @@ func TestName(t *testing.T) {
 	}
 }
 
+func TestGoType(t *testing.T) {
+	testcases := []struct {
+		in  string
+		out string
+	}{
+		{
+			in:  "string",
+			out: "string",
+		},
+		{
+			in:  "int",
+			out: "int64",
+		},
+		{
+			in:  "object",
+			out: "map[string]interface{}",
+		},
+		{
+			in:  "timestamp",
+			out: "time.Time",
+		},
+		{
+			in:  "*timestamp",
+			out: "*time.Time",
+		},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.in, func(t *testing.T) {
+			assert.Equal(t, goType(tc.in), tc.out)
+		})
+	}
+}
+
 func TestSignature(t *testing.T) {
 	testcases := []struct {
 		name string
@@ -94,7 +127,7 @@ func TestSignature(t *testing.T) {
 					{Name: "b", Type: "int"},
 				},
 			},
-			out: "do(ctxt context.Context, a string, b int) (error)",
+			out: "do(ctxt context.Context, a string, b int64) (error)",
 		},
 		{
 			name: "return value",

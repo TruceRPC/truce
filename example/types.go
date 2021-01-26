@@ -33,7 +33,7 @@ type PatchPostRequest struct {
 }
 
 type PatchUserRequest struct {
-	Age    int                    `json:"age"`
+	Age    int64                  `json:"age"`
 	Height float64                `json:"height"`
 	Labels map[string]interface{} `json:"labels"`
 	Name   string                 `json:"name"`
@@ -55,14 +55,14 @@ type PutPostRequest struct {
 }
 
 type PutUserRequest struct {
-	Age    int                    `json:"age"`
+	Age    int64                  `json:"age"`
 	Height float64                `json:"height"`
 	Labels map[string]interface{} `json:"labels"`
 	Name   string                 `json:"name"`
 }
 
 type User struct {
-	Age    int                    `json:"age"`
+	Age    int64                  `json:"age"`
 	Height float64                `json:"height"`
 	Id     string                 `json:"id"`
 	Labels map[string]interface{} `json:"labels"`

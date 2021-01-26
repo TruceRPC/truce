@@ -71,13 +71,17 @@ specifications: {
 					}
 				}
 				"Get\(resourceName)s": {
+					arguments: [
+						{name: "limit", type: "int"},
+					]
 					return: {
 						name: "\(strings.ToLower(resourceName))s"
 						type: "[]\(resourceName)"
 					}
 					transports: http: {
-						path:   "/\(strings.ToLower(resourceName))s"
-						method: "GET"
+						path:                    "/\(strings.ToLower(resourceName))s"
+						method:                  "GET"
+						arguments: limit: {from: "query", var: "limit"}
 					}
 				}
 				"Put\(resourceName)": {

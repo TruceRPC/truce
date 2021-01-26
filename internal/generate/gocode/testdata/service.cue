@@ -23,20 +23,19 @@ import "strings"
 
 outputs:
 	"example": "1": {
-		openapi: {
-			version: 3
-			path:    "example/swagger.json"
-		}
 		go: {
-			types: {path: "example/types.go", pkg: "example"}
+			types: {
+				path: "types.go.golden"
+				pkg:  "example"
+			}
 			server: {
-				path: "example/server.go"
-				type: "Server"
+				path: "server.go.golden"
+				type: "ExampleServer"
 				pkg:  "example"
 			}
 			client: {
-				path: "example/client.go"
-				type: "Client"
+				path: "client.go.golden"
+				type: "ExampleClient"
 				pkg:  "example"
 			}
 		}
@@ -71,13 +70,19 @@ specifications: {
 					}
 				}
 				"Get\(resourceName)s": {
+					arguments: [
+						{name: "limit", type: "int"},
+						{name: "since", type: "timestamp"},
+					]
 					return: {
 						name: "\(strings.ToLower(resourceName))s"
 						type: "[]\(resourceName)"
 					}
 					transports: http: {
-						path:   "/\(strings.ToLower(resourceName))s"
-						method: "GET"
+						path:                    "/\(strings.ToLower(resourceName))s"
+						method:                  "GET"
+						arguments: limit: {from: "query", var: "limit"}
+						arguments: since: {from: "query", var: "timestamp"}
 					}
 				}
 				"Put\(resourceName)": {
@@ -110,6 +115,22 @@ specifications: {
 							id: {from: "path", var: "id"}
 							"\(strings.ToLower(resourceName))": from: "body"
 						}
+					}
+				}
+				"NamespacedGet\(resourceName)": {
+					arguments: [
+						{name: "namespace", type: "string"},
+						{name: "id", type:        "string"},
+					]
+					return: {
+						name: "\(strings.ToLower(resourceName))"
+						type: resourceName
+					}
+					transports: http: {
+						path:                        "/namespace/{namespace}/\(strings.ToLower(resourceName))s/{id}"
+						method:                      "GET"
+						arguments: namespace: {from: "path", var: "namespace"}
+						arguments: id: {from: "path", var: "id"}
 					}
 				}
 			}
