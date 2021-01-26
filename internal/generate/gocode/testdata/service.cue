@@ -115,6 +115,22 @@ specifications: {
 						}
 					}
 				}
+				"NamespacedGet\(resourceName)": {
+					arguments: [
+						{name: "namespace", type: "string"},
+						{name: "id", type:        "string"},
+					]
+					return: {
+						name: "\(strings.ToLower(resourceName))"
+						type: resourceName
+					}
+					transports: http: {
+						path:                        "/namespace/{namespace}/\(strings.ToLower(resourceName))s/{id}"
+						method:                      "GET"
+						arguments: namespace: {from: "path", var: "namespace"}
+						arguments: id: {from: "path", var: "id"}
+					}
+				}
 			}
 		}
 		types: {

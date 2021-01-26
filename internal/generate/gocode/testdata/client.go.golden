@@ -180,6 +180,76 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context, limit int64) ([]User, er
 	return _rtn, _err
 }
 
+func (_c *ExampleClient) NamespacedGetPost(ctxt context.Context, namespace string, id string) (Post, error) {
+	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/namespace/%v/posts/%v", namespace, id))
+	if _err != nil {
+		return Post{}, _err
+	}
+
+	var (
+		_body io.Reader
+		_resp *http.Response
+	)
+
+	_req, _err := http.NewRequest("GET", _u.String(), _body)
+	if _err != nil {
+		return Post{}, _err
+	}
+
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
+	if _err != nil {
+		return Post{}, _err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, _resp.Body)
+		_ = _resp.Body.Close()
+	}()
+
+	if _err = _checkResponse(_resp); _err != nil {
+		return Post{}, _err
+	}
+
+	var _rtn Post
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
+	return _rtn, _err
+}
+
+func (_c *ExampleClient) NamespacedGetUser(ctxt context.Context, namespace string, id string) (User, error) {
+	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/namespace/%v/users/%v", namespace, id))
+	if _err != nil {
+		return User{}, _err
+	}
+
+	var (
+		_body io.Reader
+		_resp *http.Response
+	)
+
+	_req, _err := http.NewRequest("GET", _u.String(), _body)
+	if _err != nil {
+		return User{}, _err
+	}
+
+	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
+	if _err != nil {
+		return User{}, _err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, _resp.Body)
+		_ = _resp.Body.Close()
+	}()
+
+	if _err = _checkResponse(_resp); _err != nil {
+		return User{}, _err
+	}
+
+	var _rtn User
+	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
+	return _rtn, _err
+}
+
 func (_c *ExampleClient) PatchPost(ctxt context.Context, id string, post PatchPostRequest) (Post, error) {
 	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", id))
 	if _err != nil {
