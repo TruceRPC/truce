@@ -67,7 +67,7 @@ func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) 
 func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 	_u, _err := _c.host.Parse("/api/v1/posts")
 	if _err != nil {
-		return []Post{}, _err
+		return nil, _err
 	}
 
 	var (
@@ -77,12 +77,12 @@ func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 
 	_req, _err := http.NewRequest("GET", _u.String(), _body)
 	if _err != nil {
-		return []Post{}, _err
+		return nil, _err
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
-		return []Post{}, _err
+		return nil, _err
 	}
 
 	defer func() {
@@ -91,7 +91,7 @@ func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
-		return []Post{}, _err
+		return nil, _err
 	}
 
 	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
@@ -135,7 +135,7 @@ func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) 
 func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 	_u, _err := _c.host.Parse("/api/v1/users")
 	if _err != nil {
-		return []User{}, _err
+		return nil, _err
 	}
 
 	var (
@@ -145,12 +145,12 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 
 	_req, _err := http.NewRequest("GET", _u.String(), _body)
 	if _err != nil {
-		return []User{}, _err
+		return nil, _err
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
-		return []User{}, _err
+		return nil, _err
 	}
 
 	defer func() {
@@ -159,7 +159,7 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
-		return []User{}, _err
+		return nil, _err
 	}
 
 	_err = json.NewDecoder(resp.Body).Decode(&_rtn)

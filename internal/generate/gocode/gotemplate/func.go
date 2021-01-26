@@ -10,14 +10,15 @@ import (
 )
 
 var tmplFuncs = template.FuncMap{
-	"args":      args,
-	"backtick":  backtick,
-	"errorFmt":  errorFmt,
-	"method":    method,
-	"name":      name,
-	"pathJoin":  pathJoin,
-	"signature": signature,
-	"tags":      tags,
+	"args":            args,
+	"backtick":        backtick,
+	"errorFmt":        errorFmt,
+	"method":          method,
+	"name":            name,
+	"pathJoin":        pathJoin,
+	"signature":       signature,
+	"tags":            tags,
+	"stringHasPrefix": strings.HasPrefix,
 }
 
 func name(f truce.Field) (v string) {

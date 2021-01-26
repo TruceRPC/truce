@@ -36,7 +36,11 @@ func New{{.ClientName}}(host string) (*{{.ClientName}}, error) {
     {{- if .ReturnIsPtr -}}
         return nil, _err
     {{ else }}
+	{{- if stringHasPrefix .ReturnType "[]" }}
+        return nil, _err
+	{{- else }}
         return {{ .ReturnType }}{}, _err
+	{{- end }}
     {{- end }}
 {{ else }}
     return _err
