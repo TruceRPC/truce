@@ -13,7 +13,7 @@ install: trucegen ## Install truce globally
 
 .PHONY: test
 test: build
-	$(GO) test -race ./...
+	$(GO) test -count 5 -race ./...
 
 .PHONY: fmt
 fmt: deps ## Run go fmt -s and cue fmt all over the shop

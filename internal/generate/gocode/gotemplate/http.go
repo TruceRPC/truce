@@ -89,13 +89,59 @@ type Error struct {
 	StatusCode int
 }
 
+// QueryParam represent a parameter mapped to a query variable
+// It contains helper method to parse query parameters into go
+// variables and vice-versa.
+type QueryParam struct {
+	Pos      int
+	Type     string
+	GoVar    string
+	QueryVar string
+}
+
+// ToStringVar outputs the code necessary to coerce the Go variable
+// onto the respective query parameter.
+func (q QueryParam) ToStringVar() string {
+	switch q.Type {
+	case "string":
+		return q.GoVar
+	case "timestamp":
+		return fmt.Sprintf("%s.Format(time.RFC3339)", q.GoVar)
+	}
+
+	return fmt.Sprintf("fmt.Sprintf(\"%%v\", %s)", q.GoVar)
+}
+
+// FromStringVar
+func (q QueryParam) FromStringVar() (v string) {
+	v = fmt.Sprintf("q%d := r.URL.Query().Get(\"%s\")\n", q.Pos, q.QueryVar)
+	switch q.Type {
+	case "int":
+		v += fmt.Sprintf("%s, err := strconv.ParseInt(q%d, 10, 64); if err != nil { return }",
+			q.GoVar, q.Pos)
+	case "float64":
+		v += fmt.Sprintf("%s, err := strconv.ParseFloat(q%d, 10, 64); if err != nil { return }",
+			q.GoVar, q.Pos)
+	case "bool":
+		v += fmt.Sprintf("%s, err := strconv.ParseBool(q%d); if err != nil { return }",
+			q.GoVar, q.Pos)
+	case "timestamp":
+		v += fmt.Sprintf("%s, err := time.Parse(time.RFC3339, q%d); if err != nil { return }",
+			q.GoVar, q.Pos)
+	default:
+		v += fmt.Sprintf("%s := q%d", q.GoVar, q.Pos)
+	}
+
+	return
+}
+
 // Function contains information about a Go function and its associated routing
 // information.
 type Function struct {
 	Definition  truce.Function
 	Method      string
 	Path        Path
-	Query       map[string]string
+	Query       map[string]QueryParam
 	BodyVar     string
 	BodyType    string
 	HasReturn   bool
@@ -205,7 +251,7 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 
 	transport := *function.Transports.HTTP
 
-	b := &Function{Definition: function, Query: map[string]string{}}
+	b := &Function{Definition: function, Query: map[string]QueryParam{}}
 
 	type argument struct {
 		variable string
@@ -240,6 +286,7 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 
 	b.Method = transport.Method
 
+	var qpos int
 	for _, arg := range transport.Arguments {
 		a, ok := args[arg.Name]
 
@@ -262,7 +309,14 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 				continue
 			}
 
-			b.Query[arg.Var] = args[arg.Name].variable
+			b.Query[arg.Var] = QueryParam{
+				Pos:      qpos,
+				QueryVar: arg.Var,
+				GoVar:    a.variable,
+				Type:     a.typ,
+			}
+
+			qpos++
 		case "static":
 			// TODO(georgemac)
 		}
