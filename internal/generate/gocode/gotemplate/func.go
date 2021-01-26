@@ -2,6 +2,7 @@ package gotemplate
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -9,15 +10,16 @@ import (
 )
 
 var tmplFuncs = template.FuncMap{
-	"args":      args,
-	"backtick":  backtick,
-	"errorFmt":  errorFmt,
-	"method":    method,
-	"name":      name,
-	"goType":    goType,
-	"path":      path,
-	"signature": signature,
-	"tags":      tags,
+	"args":            args,
+	"backtick":        backtick,
+	"errorFmt":        errorFmt,
+	"goType":          goType,
+	"method":          method,
+	"name":            name,
+	"pathJoin":        pathJoin,
+	"signature":       signature,
+	"stringHasPrefix": strings.HasPrefix,
+	"tags":            tags,
 }
 
 func name(f truce.Field) (v string) {
@@ -52,47 +54,44 @@ func signature(f truce.Function) string {
 	fmt.Fprintf(builder, "%s(ctxt context.Context, ", f.Name)
 	for i, arg := range f.Arguments {
 		if i > 0 {
-			builder.Write([]byte(", "))
+			builder.WriteString(", ")
 		}
-
-		fmt.Fprintf(builder, "v%d %s", i, goType(arg.Type))
+		fmt.Fprintf(builder, "%s %s", arg.Name, goType(arg.Type))
 	}
 
-	builder.Write([]byte(") ("))
+	builder.WriteString(") (")
 	if rtn := f.Return; rtn.Name != "" {
-		fmt.Fprintf(builder, "rtn %s, ", goType(rtn.Type))
+		fmt.Fprintf(builder, "%s, ", goType(rtn.Type))
 	}
-
-	builder.Write([]byte("err error)"))
+	builder.WriteString("error)")
 
 	return builder.String()
 }
 
-func path(b *Function) string {
-	if len(b.Path) == 0 {
-		return fmt.Sprintf("%q", b.Path)
+func pathJoin(path Path) string {
+	if len(path) == 0 {
+		return fmt.Sprintf("%q", path)
 	}
 
 	var hasVariables bool
-	for _, elem := range b.Path {
+	for _, elem := range path {
 		if elem.Type == "variable" {
 			hasVariables = true
 		}
 	}
 
 	if hasVariables {
-		return fmt.Sprintf(`fmt.Sprintf(%q, %s)`, b.Path.FmtString(), b.Path.ArgString())
+		return fmt.Sprintf(`fmt.Sprintf(%q, %s)`, path.FmtString(), path.ArgString())
 	}
-	return fmt.Sprintf(`%q`, b.Path.FmtString())
+	return fmt.Sprintf(`%q`, path.FmtString())
 }
 
 func args(f truce.Function) (v string) {
-	for i := range f.Arguments {
+	for i, arg := range f.Arguments {
 		if i > 0 {
 			v += ", "
 		}
-
-		v += fmt.Sprintf("v%d", i)
+		v += arg.Name
 	}
 	return
 }
@@ -106,7 +105,7 @@ func errorFmt(t truce.Type) string {
 		i              int
 		fmtStr, argStr string
 	)
-	for _, field := range t.Fields {
+	for _, field := range sortedFields(t.Fields) {
 		if i > 0 {
 			fmtStr += " "
 			argStr += ", "
@@ -122,4 +121,15 @@ func errorFmt(t truce.Type) string {
 
 func backtick(v string) string {
 	return "`" + v + "`"
+}
+
+func sortedFields(m map[string]truce.Field) []truce.Field {
+	var l []truce.Field
+	for _, f := range m {
+		l = append(l, f)
+	}
+	sort.Slice(l, func(i, j int) bool {
+		return l[i].Name < l[j].Name
+	})
+	return l
 }

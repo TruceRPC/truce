@@ -11,7 +11,7 @@ func TestParseAll(t *testing.T) {
 	assert.NilError(t, err)
 
 	known := []string{
-		"type.go.tmpl",
+		"types.go.tmpl",
 		"server.go.tmpl",
 		"client.go.tmpl",
 	}
