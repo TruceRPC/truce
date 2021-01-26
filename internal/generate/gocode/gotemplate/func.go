@@ -87,20 +87,11 @@ func method(b *Function) string {
 }
 
 func errorFmt(t truce.Type) string {
-	// Sort the fields
-	var fields []truce.Field
-	for _, f := range t.Fields {
-		fields = append(fields, f)
-	}
-	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Name < fields[j].Name
-	})
-
 	var (
 		i              int
 		fmtStr, argStr string
 	)
-	for _, field := range fields {
+	for _, field := range sortedFields(t.Fields) {
 		if i > 0 {
 			fmtStr += " "
 			argStr += ", "
@@ -116,4 +107,15 @@ func errorFmt(t truce.Type) string {
 
 func backtick(v string) string {
 	return "`" + v + "`"
+}
+
+func sortedFields(m map[string]truce.Field) []truce.Field {
+	var l []truce.Field
+	for _, f := range m {
+		l = append(l, f)
+	}
+	sort.Slice(l, func(i, j int) bool {
+		return l[i].Name < l[j].Name
+	})
+	return l
 }
