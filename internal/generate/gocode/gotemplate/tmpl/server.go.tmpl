@@ -12,8 +12,9 @@ import (
 )
 
 type Service interface {
-    {{range .Functions}}{{signature .Definition}}
-    {{end}}
+    {{ range .Functions -}}
+    {{ signature .Definition }}
+    {{ end }}
 }
 
 type {{.ServerName}} struct {
@@ -22,28 +23,32 @@ type {{.ServerName}} struct {
 }
 {{ $ctxt := . }}
 func New{{.ServerName}}(srv Service) *{{.ServerName}} {
-    s := &{{.ServerName}}{
+    s := &{{ .ServerName }}{
       Router: chi.NewRouter(),
       srv: srv,
     }
 
-    {{ range .Functions }}s.Router.{{method .}}("{{.Path}}", s.handle{{.Definition.Name}})
+    {{ range .Functions -}}
+    s.Router.{{method .}}("{{.Path}}", s.handle{{.Definition.Name}})
     {{end}}
 
     return s
 }
 
 {{ range .Functions }}func (c *{{ $ctxt.ServerName }}) handle{{.Definition.Name}}(w http.ResponseWriter, r *http.Request) {
-    {{range .Path}}{{if eq .Type "variable"}}{{.Var}} := chi.URLParam(r, "{{.Value}}")
-    {{end}}{{end}}
-    {{range $k, $v := .Query}}{{$v}} := r.URL.Query().Get("{{$k}}")
-    {{end}}
-    {{if ne .BodyVar ""}}var {{.BodyVar}} {{.BodyType}}
-    if err := json.NewDecoder(r.Body).Decode(&{{.BodyVar}}); err != nil {
+    {{- range .Path -}}
+    {{ if eq .Type "variable" }}{{ .Var }} := chi.URLParam(r, "{{ .Value }}"){{ end }}
+    {{- end }}
+    {{- range $k, $v := .Query -}}
+    {{ $v }} := r.URL.Query().Get("{{ $k }}")
+    {{- end }}
+    {{- if ne .BodyVar "" }}
+    var {{ .BodyVar }} {{ .BodyType }}
+    if err := json.NewDecoder(r.Body).Decode(&{{ .BodyVar }}); err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
-    {{end}}
+    {{ end }}
 	r0, err := c.srv.{{.Definition.Name}}(r.Context(), {{args .Definition}})
 	if err != nil {
 		handleError(w, err)
@@ -56,6 +61,7 @@ func New{{.ServerName}}(srv Service) *{{.ServerName}} {
 
 	return
 }
+
 {{ end }}
 
 func handleError(w http.ResponseWriter, err error) {
