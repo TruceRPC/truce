@@ -14,6 +14,7 @@ var tmplFuncs = template.FuncMap{
 	"errorFmt":  errorFmt,
 	"method":    method,
 	"name":      name,
+	"goType":    goType,
 	"path":      path,
 	"signature": signature,
 	"tags":      tags,
@@ -25,6 +26,21 @@ func name(f truce.Field) (v string) {
 		v += strings.Title(p)
 	}
 	return
+}
+
+func goType(typ string) string {
+	switch typ {
+	case "object":
+		return "map[string]interface{}"
+	case "timestamp", "*timestamp":
+		if typ[0] == '*' {
+			return "*time.Time"
+		}
+
+		return "time.Time"
+	default:
+		return typ
+	}
 }
 
 func tags(f truce.Field) string {
@@ -39,12 +55,12 @@ func signature(f truce.Function) string {
 			builder.Write([]byte(", "))
 		}
 
-		fmt.Fprintf(builder, "v%d %s", i, arg.Type)
+		fmt.Fprintf(builder, "v%d %s", i, goType(arg.Type))
 	}
 
 	builder.Write([]byte(") ("))
 	if rtn := f.Return; rtn.Name != "" {
-		fmt.Fprintf(builder, "rtn %s, ", rtn.Type)
+		fmt.Fprintf(builder, "rtn %s, ", goType(rtn.Type))
 	}
 
 	builder.Write([]byte("err error)"))

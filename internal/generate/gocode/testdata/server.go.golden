@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
 )
+
+var _ = time.After
 
 type Service interface {
 	GetPost(ctxt context.Context, v0 string) (rtn Post, err error)

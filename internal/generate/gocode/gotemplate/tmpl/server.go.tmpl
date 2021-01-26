@@ -4,10 +4,13 @@ import (
 "context"
 "encoding/json"
 "net/http"
+"time"
 
 "github.com/go-chi/chi"
 {{ .Imports }}
 )
+
+var _ = time.After
 
 type Service interface {
     {{range .Functions}}{{signature .Definition}}
