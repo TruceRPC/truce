@@ -23,20 +23,19 @@ import "strings"
 
 outputs:
 	"example": "1": {
-		openapi: {
-			version: 3
-			path:    "example/swagger.json"
-		}
 		go: {
-			types: {path: "example/types.go", pkg: "example"}
+			types: {
+				path: "types.go.golden"
+				pkg:  "example"
+			}
 			server: {
-				path: "example/server.go"
-				type: "Server"
+				path: "server.go.golden"
+				type: "ExampleServer"
 				pkg:  "example"
 			}
 			client: {
-				path: "example/client.go"
-				type: "Client"
+				path: "client.go.golden"
+				type: "ExampleClient"
 				pkg:  "example"
 			}
 		}
@@ -71,13 +70,17 @@ specifications: {
 					}
 				}
 				"Get\(resourceName)s": {
+					arguments: [
+						{name: "limit", type: "int"},
+					]
 					return: {
 						name: "\(strings.ToLower(resourceName))s"
 						type: "[]\(resourceName)"
 					}
 					transports: http: {
-						path:   "/\(strings.ToLower(resourceName))s"
-						method: "GET"
+						path:                    "/\(strings.ToLower(resourceName))s"
+						method:                  "GET"
+						arguments: limit: {from: "query", var: "limit"}
 					}
 				}
 				"Put\(resourceName)": {
