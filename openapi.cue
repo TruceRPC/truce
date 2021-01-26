@@ -132,8 +132,10 @@ openapi3: {
 												name:        argDef.name
 												in:          fnArg.from
 												description: "\(argDef.name) from \(fnArg.from)"
-												required:    true
-												schema:      schemaObj.schema
+												if fnArg.from == "path" {
+													required: true
+												}
+												schema: schemaObj.schema
 											}
 										}
 									},
