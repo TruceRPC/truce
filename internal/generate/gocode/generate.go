@@ -58,7 +58,7 @@ func New(api truce.API, opts ...Option) (Generator, error) {
 
 func (g Generator) WriteTypesTo(w io.Writer, opts ...Option) error {
 	Options(opts).Apply(&g)
-	t := g.template.Lookup("type.go.tmpl")
+	t := g.template.Lookup("types.go.tmpl")
 	return writeGo(w, t, g.context)
 }
 
