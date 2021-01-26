@@ -49,7 +49,7 @@ func New{{.ServerName}}(srv Service) *{{.ServerName}} {
         return
     }
     {{ end }}
-	r0, err := c.srv.{{.Definition.Name}}(r.Context(), {{args .Definition}})
+	r0, err := c.srv.{{ .Definition.Name }}(r.Context(), {{ args .Definition }})
 	if err != nil {
 		handleError(w, err)
 		return

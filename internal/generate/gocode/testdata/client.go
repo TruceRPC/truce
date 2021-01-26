@@ -33,7 +33,7 @@ func NewExampleClient(host string) (*ExampleClient, error) {
 func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) {
 	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", id))
 	if _err != nil {
-		return Post{}, _err
+		return
 	}
 
 	var (
@@ -43,12 +43,16 @@ func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) 
 
 	_req, _err := http.NewRequest("GET", _u.String(), _body)
 	if _err != nil {
+
 		return Post{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return Post{}, _err
+
 	}
 
 	defer func() {
@@ -57,17 +61,19 @@ func (_c *ExampleClient) GetPost(ctxt context.Context, id string) (Post, error) 
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return Post{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
-}
 
+}
 func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 	_u, _err := _c.host.Parse("/api/v1/posts")
 	if _err != nil {
-		return []Post{}, _err
+		return
 	}
 
 	var (
@@ -77,12 +83,16 @@ func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 
 	_req, _err := http.NewRequest("GET", _u.String(), _body)
 	if _err != nil {
+
 		return []Post{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return []Post{}, _err
+
 	}
 
 	defer func() {
@@ -91,17 +101,19 @@ func (_c *ExampleClient) GetPosts(ctxt context.Context) ([]Post, error) {
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return []Post{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
-}
 
+}
 func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) {
 	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/users/%v", id))
 	if _err != nil {
-		return User{}, _err
+		return
 	}
 
 	var (
@@ -111,12 +123,16 @@ func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) 
 
 	_req, _err := http.NewRequest("GET", _u.String(), _body)
 	if _err != nil {
+
 		return User{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return User{}, _err
+
 	}
 
 	defer func() {
@@ -125,17 +141,19 @@ func (_c *ExampleClient) GetUser(ctxt context.Context, id string) (User, error) 
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return User{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
-}
 
+}
 func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 	_u, _err := _c.host.Parse("/api/v1/users")
 	if _err != nil {
-		return []User{}, _err
+		return
 	}
 
 	var (
@@ -145,12 +163,16 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 
 	_req, _err := http.NewRequest("GET", _u.String(), _body)
 	if _err != nil {
+
 		return []User{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return []User{}, _err
+
 	}
 
 	defer func() {
@@ -159,17 +181,19 @@ func (_c *ExampleClient) GetUsers(ctxt context.Context) ([]User, error) {
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return []User{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
-}
 
+}
 func (_c *ExampleClient) PatchPost(ctxt context.Context, id string, post PatchPostRequest) (Post, error) {
 	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", id))
 	if _err != nil {
-		return Post{}, _err
+		return
 	}
 
 	var (
@@ -179,18 +203,22 @@ func (_c *ExampleClient) PatchPost(ctxt context.Context, id string, post PatchPo
 
 	_buf := &bytes.Buffer{}
 	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(post); _err != nil {
-		return Post{}, _err
+	if err = json.NewEncoder(_buf).Encode(post); err != nil {
+		return
 	}
 
 	_req, _err := http.NewRequest("PATCH", _u.String(), _body)
 	if _err != nil {
+
 		return Post{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return Post{}, _err
+
 	}
 
 	defer func() {
@@ -199,17 +227,19 @@ func (_c *ExampleClient) PatchPost(ctxt context.Context, id string, post PatchPo
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return Post{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
-}
 
+}
 func (_c *ExampleClient) PatchUser(ctxt context.Context, id string, user PatchUserRequest) (User, error) {
 	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/users/%v", id))
 	if _err != nil {
-		return User{}, _err
+		return
 	}
 
 	var (
@@ -219,18 +249,22 @@ func (_c *ExampleClient) PatchUser(ctxt context.Context, id string, user PatchUs
 
 	_buf := &bytes.Buffer{}
 	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(user); _err != nil {
-		return User{}, _err
+	if err = json.NewEncoder(_buf).Encode(user); err != nil {
+		return
 	}
 
 	_req, _err := http.NewRequest("PATCH", _u.String(), _body)
 	if _err != nil {
+
 		return User{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return User{}, _err
+
 	}
 
 	defer func() {
@@ -239,17 +273,19 @@ func (_c *ExampleClient) PatchUser(ctxt context.Context, id string, user PatchUs
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return User{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
-}
 
+}
 func (_c *ExampleClient) PutPost(ctxt context.Context, post PutPostRequest) (Post, error) {
 	_u, _err := _c.host.Parse("/api/v1/posts")
 	if _err != nil {
-		return Post{}, _err
+		return
 	}
 
 	var (
@@ -259,18 +295,22 @@ func (_c *ExampleClient) PutPost(ctxt context.Context, post PutPostRequest) (Pos
 
 	_buf := &bytes.Buffer{}
 	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(post); _err != nil {
-		return Post{}, _err
+	if err = json.NewEncoder(_buf).Encode(post); err != nil {
+		return
 	}
 
 	_req, _err := http.NewRequest("PUT", _u.String(), _body)
 	if _err != nil {
+
 		return Post{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return Post{}, _err
+
 	}
 
 	defer func() {
@@ -279,17 +319,19 @@ func (_c *ExampleClient) PutPost(ctxt context.Context, post PutPostRequest) (Pos
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return Post{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
-}
 
+}
 func (_c *ExampleClient) PutUser(ctxt context.Context, user PutUserRequest) (User, error) {
 	_u, _err := _c.host.Parse("/api/v1/users")
 	if _err != nil {
-		return User{}, _err
+		return
 	}
 
 	var (
@@ -299,18 +341,22 @@ func (_c *ExampleClient) PutUser(ctxt context.Context, user PutUserRequest) (Use
 
 	_buf := &bytes.Buffer{}
 	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(user); _err != nil {
-		return User{}, _err
+	if err = json.NewEncoder(_buf).Encode(user); err != nil {
+		return
 	}
 
 	_req, _err := http.NewRequest("PUT", _u.String(), _body)
 	if _err != nil {
+
 		return User{}, _err
+
 	}
 
 	_resp, _err = c.client.Do(_req.WithContext(ctxt))
 	if _err != nil {
+
 		return User{}, _err
+
 	}
 
 	defer func() {
@@ -319,11 +365,14 @@ func (_c *ExampleClient) PutUser(ctxt context.Context, user PutUserRequest) (Use
 	}()
 
 	if _err = _checkResponse(_resp); _err != nil {
+
 		return User{}, _err
+
 	}
 
-	_err = json.NewDecoder(resp.Body).Decode(&_rtn)
+	_err = json.NewDecoder(resp.Body).Decode(&rtn)
 	return _rtn, _err
+
 }
 
 func _checkResponse(resp *http.Response) error {

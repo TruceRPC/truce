@@ -18,7 +18,7 @@ func TestArgs(t *testing.T) {
 			in: []truce.Field{
 				{Name: "a", Type: "string"},
 			},
-			out: "v0",
+			out: "a",
 		},
 		{
 			name: "multiple fields",
@@ -26,7 +26,7 @@ func TestArgs(t *testing.T) {
 				{Name: "a", Type: "string"},
 				{Name: "b", Type: "string"},
 			},
-			out: "v0, v1",
+			out: "a, b",
 		},
 		{
 			name: "no fields",
@@ -83,7 +83,7 @@ func TestSignature(t *testing.T) {
 					{Name: "a", Type: "string"},
 				},
 			},
-			out: "do(ctxt context.Context, v0 string) (err error)",
+			out: "do(ctxt context.Context, a string) (error)",
 		},
 		{
 			name: "multiple arguments",
@@ -94,7 +94,7 @@ func TestSignature(t *testing.T) {
 					{Name: "b", Type: "int"},
 				},
 			},
-			out: "do(ctxt context.Context, v0 string, v1 int) (err error)",
+			out: "do(ctxt context.Context, a string, b int) (error)",
 		},
 		{
 			name: "return value",
@@ -108,7 +108,7 @@ func TestSignature(t *testing.T) {
 					Type: "string",
 				},
 			},
-			out: "do(ctxt context.Context, v0 string) (rtn string, err error)",
+			out: "do(ctxt context.Context, a string) (string, error)",
 		},
 	}
 	for _, tc := range testcases {

@@ -217,10 +217,10 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 		args         = map[string]argument{}
 	)
 
-	for i, field := range function.Arguments {
+	for _, field := range function.Arguments {
 		args[field.Name] = argument{
 			typ:      string(field.Type),
-			variable: fmt.Sprintf("v%d", i),
+			variable: field.Name,
 		}
 	}
 

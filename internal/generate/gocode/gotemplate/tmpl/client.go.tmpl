@@ -31,65 +31,79 @@ func New{{.ClientName}}(host string) (*{{.ClientName}}, error) {
     return &{{.ClientName}}{client: http.DefaultClient, host: u}, nil
 }
 
+{{ define "errorReturn" }}
+{{- if .HasReturn -}}
+    {{- if .ReturnIsPtr -}}
+        return nil, _err
+    {{ else }}
+        return {{ .ReturnType }}{}, _err
+    {{- end }}
+{{ else }}
+    return _err
+{{- end -}}
+{{ end }}
+
 {{ $ctxt := . }}
 {{- range .Functions }}
-func (c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
-    u, err := c.host.Parse({{ pathJoin .Path }})
-    if err != nil {
-        return
+func (_c *{{ $ctxt.ClientName }}) {{signature .Definition}} {
+    _u, _err := _c.host.Parse({{ pathJoin .Path }})
+    if _err != nil {
+        {{- template "errorReturn" . -}}
     }
 
     {{ if ne (len .Query) 0 -}}
-    query := u.Query()
+    _query := _u.Query()
     {{ range $k, $v := .Query -}}
-    query.Set("{{$k}}", {{$v}})
+    _query.Set("{{$k}}", {{$v}})
     {{ end -}}
-    u.RawQuery = query.Encode()
+    _u.RawQuery = _query.Encode()
     {{- end }}
 
     var (
-        body io.Reader
-        resp *http.Response
+        _body io.Reader
+        _resp *http.Response
     )
 
     {{ if ne .BodyVar "" -}}
-    buf := &bytes.Buffer{}
-    body = buf
-    if err = json.NewEncoder(buf).Encode({{ .BodyVar }}); err != nil {
-        return
+    _buf := &bytes.Buffer{}
+    _body = _buf
+    if _err = json.NewEncoder(_buf).Encode({{ .BodyVar }}); _err != nil {
+        {{- template "errorReturn" . -}}
     }
     {{- end }}
 
-    req, err := http.NewRequest("{{ .Method }}", u.String(), body)
-    if err != nil {
-        return
+    _req, _err := http.NewRequest("{{ .Method }}", _u.String(), _body)
+    if _err != nil {
+        {{- template "errorReturn" . -}}
     }
 
-    resp, err = c.client.Do(req.WithContext(ctxt))
-    if err != nil {
-        return
+    _resp, _err = c.client.Do(_req.WithContext(ctxt))
+    if _err != nil {
+        {{- template "errorReturn" . -}}
     }
 
     defer func(){
-        _, _ = io.Copy(ioutil.Discard, resp.Body)
-        _ = resp.Body.Close()
+        _, _ = io.Copy(ioutil.Discard, _resp.Body)
+        _ = _resp.Body.Close()
     }()
 
-    if err = checkResponse(resp); err != nil {
-        return
+    if _err = _checkResponse(_resp); _err != nil {
+        {{- template "errorReturn" . -}}
     }
 
     {{ if .HasReturn -}}
     {{ if .ReturnIsPtr -}}
-    rtn = &{{ .ReturnType }}{}
+    _rtn := &{{ .ReturnType }}{}
     {{- end }}
-    err = json.NewDecoder(resp.Body).Decode({{ if not .ReturnIsPtr }}&{{ end }}rtn)
-    {{- end }}
+    _err = json.NewDecoder(resp.Body).Decode({{ if not .ReturnIsPtr }}&{{ end }}_rtn)
+    return _rtn, _err
+    {{ else }}
+    return nil
+    {{- end -}}
+}
+{{ end }}
 
-    return
-}{{ end }}
-
-func checkResponse(resp *http.Response) (error) {
+func _checkResponse(resp *http.Response) (error) {
     switch resp.StatusCode {
     case http.StatusOK:
         return nil

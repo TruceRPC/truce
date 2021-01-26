@@ -39,14 +39,14 @@ func signature(f truce.Function) string {
 		if i > 0 {
 			builder.WriteString(", ")
 		}
-		fmt.Fprintf(builder, "v%d %s", i, arg.Type)
+		fmt.Fprintf(builder, "%s %s", arg.Name, arg.Type)
 	}
 
 	builder.WriteString(") (")
 	if rtn := f.Return; rtn.Name != "" {
-		fmt.Fprintf(builder, "rtn %s, ", rtn.Type)
+		fmt.Fprintf(builder, "%s, ", rtn.Type)
 	}
-	builder.WriteString("err error)")
+	builder.WriteString("error)")
 
 	return builder.String()
 }
@@ -70,12 +70,11 @@ func pathJoin(path Path) string {
 }
 
 func args(f truce.Function) (v string) {
-	for i := range f.Arguments {
+	for i, arg := range f.Arguments {
 		if i > 0 {
 			v += ", "
 		}
-
-		v += fmt.Sprintf("v%d", i)
+		v += arg.Name
 	}
 	return
 }
