@@ -62,7 +62,7 @@ func signature(f truce.Function) string {
 	}
 
 	builder.WriteString(") (")
-	if rtn := f.Return; rtn.Name != "" {
+	if rtn := f.Return; rtn != nil && rtn.Name != "" {
 		fmt.Fprintf(builder, "%s, ", goType(rtn.Type))
 	}
 	builder.WriteString("error)")

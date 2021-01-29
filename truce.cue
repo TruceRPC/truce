@@ -52,7 +52,7 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 #Function: {
 	name: =~"^[A-Z][a-zA-Z]*$" // function names are capitalised
 	arguments: [...#Field]
-	return: #Field
+	return?: #Field
 	transports?: http?: #HTTPFunction
 }
 
