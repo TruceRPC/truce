@@ -167,7 +167,7 @@ openapi3: {
 								responses: {
 									"200": {
 										description: "\(fnDef.name) operation 200 response"
-										if !fnDef.return.noReturn {
+										if fnDef.return.present {
 											content: {
 												"application/json": {
 													_#schemaObj & {schema: {_type: fnDef.return.type}}
