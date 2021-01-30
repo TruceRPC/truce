@@ -79,9 +79,12 @@ type HTTPError struct {
 }
 
 type Function struct {
-	Name       string            `cue:"name"`
-	Arguments  []Field           `cue:"arguments"`
-	Return     *Field            `cue:"return"`
+	Name      string  `cue:"name"`
+	Arguments []Field `cue:"arguments"`
+	Return    struct {
+		Field
+		NoReturn bool `cue:"noReturn"`
+	} `cue:"return"`
 	Transports FunctionTransport `cue:"transports"`
 }
 

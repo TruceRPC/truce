@@ -116,6 +116,18 @@ specifications: {
 						}
 					}
 				}
+				"Delete\(resourceName)": {
+					arguments: [
+						{name: "id", type: "string"},
+					]
+					transports: http: {
+						path:   "/\(strings.ToLower(resourceName))s/{id}"
+						method: "DELETE"
+						arguments: {
+							id: {from: "path", var: "id"}
+						}
+					}
+				}
 			}
 		}
 		types: {

@@ -1,6 +1,6 @@
 module github.com/TruceRPC/truce
 
-go 1.15
+go 1.16
 
 require (
 	cuelang.org/go v0.2.2
