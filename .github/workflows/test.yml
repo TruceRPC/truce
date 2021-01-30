@@ -17,6 +17,7 @@ jobs:
           stable: false
           go-version: 1.16.0-rc1
       - name: Lint
+        continue-on-error: true # TODO: Remove when 1.16 linting starts passing.
         run: |
           go get honnef.co/go/tools/cmd/staticcheck
           staticcheck ./...
