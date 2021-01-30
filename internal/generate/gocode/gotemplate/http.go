@@ -154,6 +154,7 @@ type Function struct {
 type Path []Element
 
 func parsePath(vars map[string]string, v string) (p Path) {
+	var varOffset int
 	for i, val := range strings.Split(v, "/") {
 		if i == 0 && val == "" {
 			continue
@@ -169,11 +170,17 @@ func parsePath(vars map[string]string, v string) (p Path) {
 			varn = vars[val]
 		}
 
-		p = append(p, Element{
-			Type:  typ,
-			Value: val,
-			Var:   varn,
-		})
+		el := Element{
+			Type:   typ,
+			Value:  val,
+			Var:    varn,
+			VarPos: varOffset,
+		}
+		p = append(p, el)
+
+		if el.Type == "variable" {
+			varOffset++
+		}
 	}
 
 	return
@@ -206,7 +213,7 @@ func (p Path) ArgString() (v string) {
 		if i > 0 {
 			v += ", "
 		}
-		v += e.Var
+		v += fmt.Sprintf("v%d", e.VarPos)
 		i++
 	}
 	return
@@ -214,9 +221,10 @@ func (p Path) ArgString() (v string) {
 
 // Element is a Path segment. It can either be static or variable.
 type Element struct {
-	Type  string
-	Value string
-	Var   string
+	Type   string
+	Value  string
+	Var    string
+	VarPos int
 }
 
 // String implements fmt.Stringer
@@ -251,11 +259,15 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 
 	transport := *function.Transports.HTTP
 
-	b := &Function{Definition: function, Query: map[string]QueryParam{}}
+	b := &Function{
+		Definition: function,
+		Query:      map[string]QueryParam{},
+	}
 
 	type argument struct {
-		variable string
-		typ      string
+		variable    string
+		posVariable string
+		typ         string
 	}
 
 	var (
@@ -263,10 +275,11 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 		args         = map[string]argument{}
 	)
 
-	for _, field := range function.Arguments {
+	for i, field := range function.Arguments {
 		args[field.Name] = argument{
-			typ:      string(field.Type),
-			variable: field.Name,
+			typ:         string(field.Type),
+			posVariable: fmt.Sprintf("v%d", i),
+			variable:    field.Name,
 		}
 	}
 
@@ -286,8 +299,17 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 
 	b.Method = transport.Method
 
-	var qpos int
+	// Sort the arguments by name for consistent positional ordering.
+	var argVals []truce.ArgumentValue
 	for _, arg := range transport.Arguments {
+		argVals = append(argVals, arg)
+	}
+	sort.Slice(argVals, func(i, j int) bool {
+		return argVals[i].Name < argVals[j].Name
+	})
+
+	var qpos int
+	for _, arg := range argVals {
 		a, ok := args[arg.Name]
 
 		switch arg.From {
@@ -296,7 +318,7 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 				continue
 			}
 
-			b.BodyVar = a.variable
+			b.BodyVar = a.posVariable
 			b.BodyType = a.typ
 		case "path":
 			if !ok {
@@ -312,7 +334,7 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 			b.Query[arg.Var] = QueryParam{
 				Pos:      qpos,
 				QueryVar: arg.Var,
-				GoVar:    a.variable,
+				GoVar:    a.posVariable,
 				Type:     a.typ,
 			}
 

@@ -34,18 +34,18 @@ func New{{.ServerName}}(srv Service) *{{.ServerName}} {
     }
 
     {{ range .Functions -}}
-    s.Router.{{method .}}("{{.Path}}", s.handle{{.Definition.Name}})
+    s.Router.{{method .}}("{{ .Path }}", s.handle{{.Definition.Name}})
     {{end}}
 
     return s
 }
 
-{{ range .Functions }}func (c *{{ $ctxt.ServerName }}) handle{{.Definition.Name}}(w http.ResponseWriter, r *http.Request) {
+{{ range .Functions }}func (c *{{ $ctxt.ServerName }}) handle{{ .Definition.Name }}(w http.ResponseWriter, r *http.Request) {
     {{- range .Path -}}
-    {{ if eq .Type "variable" }}{{ .Var }} := chi.URLParam(r, "{{ .Value }}"){{ end }}
+    {{ if eq .Type "variable" }}v{{ .VarPos }} := chi.URLParam(r, "{{ .Value }}"){{ end }}
     {{ end }}
     {{- range $k, $v := .Query -}}
-    {{$v.FromStringVar}}
+    {{ $v.FromStringVar }}
     {{- end }}
     {{- if ne .BodyVar "" }}
     var {{ .BodyVar }} {{ .BodyType }}
@@ -54,7 +54,7 @@ func New{{.ServerName}}(srv Service) *{{.ServerName}} {
         return
     }
     {{ end }}
-	r0, err := c.srv.{{ .Definition.Name }}(r.Context(), {{ args .Definition }})
+	r0, err := c.srv.{{ .Definition.Name }}(r.Context(), {{ .Definition.Arguments | posArgs }})
 	if err != nil {
 		handleError(w, err)
 		return

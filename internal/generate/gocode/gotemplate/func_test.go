@@ -7,7 +7,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func TestArgs(t *testing.T) {
+func TestPosArgs(t *testing.T) {
 	testcases := []struct {
 		name string
 		in   []truce.Field
@@ -18,7 +18,7 @@ func TestArgs(t *testing.T) {
 			in: []truce.Field{
 				{Name: "a", Type: "string"},
 			},
-			out: "a",
+			out: "v0",
 		},
 		{
 			name: "multiple fields",
@@ -26,7 +26,7 @@ func TestArgs(t *testing.T) {
 				{Name: "a", Type: "string"},
 				{Name: "b", Type: "string"},
 			},
-			out: "a, b",
+			out: "v0, v1",
 		},
 		{
 			name: "no fields",
@@ -36,9 +36,7 @@ func TestArgs(t *testing.T) {
 	}
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			v := args(truce.Function{
-				Arguments: tc.in,
-			})
+			v := posArgs(tc.in)
 			assert.Equal(t, v, tc.out)
 		})
 	}
@@ -181,29 +179,29 @@ func TestPath(t *testing.T) {
 		{
 			name: "single variable",
 			in: Path{
-				{Var: "x", Type: "variable", Value: "a"},
+				{VarPos: 0, Var: "x", Type: "variable", Value: "a"},
 			},
-			out: `fmt.Sprintf("/%v", x)`,
+			out: `fmt.Sprintf("/%v", v0)`,
 		},
 		{
 			name: "multiple variables",
 			in: Path{
-				{Var: "x", Type: "variable", Value: "a"},
-				{Var: "y", Type: "variable", Value: "b"},
-				{Var: "z", Type: "variable", Value: "c"},
+				{VarPos: 0, Var: "x", Type: "variable", Value: "a"},
+				{VarPos: 1, Var: "y", Type: "variable", Value: "b"},
+				{VarPos: 2, Var: "z", Type: "variable", Value: "c"},
 			},
-			out: `fmt.Sprintf("/%v/%v/%v", x, y, z)`,
+			out: `fmt.Sprintf("/%v/%v/%v", v0, v1, v2)`,
 		},
 		{
 			name: "variables and static elements",
 			in: Path{
 				{Value: "api", Type: "static"},
-				{Var: "x", Type: "variable", Value: "a"},
-				{Var: "y", Type: "variable", Value: "b"},
+				{VarPos: 0, Var: "x", Type: "variable", Value: "a"},
+				{VarPos: 1, Var: "y", Type: "variable", Value: "b"},
 				{Value: "private", Type: "static"},
-				{Var: "z", Type: "variable", Value: "c"},
+				{VarPos: 2, Var: "z", Type: "variable", Value: "c"},
 			},
-			out: `fmt.Sprintf("/api/%v/%v/private/%v", x, y, z)`,
+			out: `fmt.Sprintf("/api/%v/%v/private/%v", v0, v1, v2)`,
 		},
 	}
 	for _, tc := range testcases {
