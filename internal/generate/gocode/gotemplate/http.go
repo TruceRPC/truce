@@ -129,7 +129,7 @@ func (q QueryParam) FromStringVar() (v string) {
 		v += fmt.Sprintf("%s, err := time.Parse(time.RFC3339, q%d); if err != nil { return }\n",
 			q.GoVar, q.Pos)
 	default:
-		v += fmt.Sprintf("%s := q%d", q.GoVar, q.Pos)
+		v += fmt.Sprintf("%s := q%d\n", q.GoVar, q.Pos)
 	}
 
 	return
