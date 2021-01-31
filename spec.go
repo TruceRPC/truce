@@ -81,8 +81,13 @@ type HTTPError struct {
 type Function struct {
 	Name       string            `cue:"name"`
 	Arguments  []Field           `cue:"arguments"`
-	Return     Field             `cue:"return"`
+	Return     OptionalField     `cue:"return"`
 	Transports FunctionTransport `cue:"transports"`
+}
+
+type OptionalField struct {
+	Field
+	Present bool `cur:"present"`
 }
 
 // FunctionTransport to be defined at a later date.

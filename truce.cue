@@ -52,7 +52,7 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 #Function: {
 	name: =~"^[A-Z][a-zA-Z]*$" // function names are capitalised
 	arguments: [...#Field]
-	return: #Field
+	return: *({present: false}) | #OptionalField
 	transports?: http?: #HTTPFunction
 }
 
@@ -70,6 +70,11 @@ specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 #Field: {
 	name: =~"^[a-z][a-zA-Z]*$"
 	type: or(#all) | =~"map[[][*]?[A-Za-z]+[]][*]?[A-Za-z]+" | =~"^[*]?[A-Z][a-zA-Z]*$" | =~"^[[][]][*]?[A-Z][a-zA-Z]*?" // can be primitive, Custom, *Custom, []primitive, []Custom, []*Custom.
+}
+
+#OptionalField: {
+	present: bool | *true
+	#Field
 }
 
 #HTTPFunction: {

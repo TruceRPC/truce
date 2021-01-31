@@ -93,7 +93,7 @@ func unexportedSignature(f truce.Function) string {
 func signatureReturn(f truce.Function) string {
 	builder := &strings.Builder{}
 	builder.WriteString("(")
-	if rtn := f.Return; rtn.Name != "" {
+	if rtn := f.Return; rtn.Present && rtn.Name != "" {
 		fmt.Fprintf(builder, "%s, ", goType(rtn.Type))
 	}
 	builder.WriteString("error)")

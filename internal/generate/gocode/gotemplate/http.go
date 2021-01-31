@@ -283,7 +283,7 @@ func NewFunction(config *truce.HTTP, function truce.Function) (*Function, error)
 		}
 	}
 
-	if function.Return.Name != "" {
+	if function.Return.Present && function.Return.Name != "" {
 		b.HasReturn = true
 		b.ReturnType = string(function.Return.Type)
 

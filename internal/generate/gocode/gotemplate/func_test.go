@@ -134,12 +134,25 @@ func TestSignature(t *testing.T) {
 				Arguments: []truce.Field{
 					{Name: "a", Type: "string"},
 				},
-				Return: truce.Field{
-					Name: "x",
-					Type: "string",
+				Return: truce.OptionalField{
+					Present: true,
+					Field: truce.Field{
+						Name: "x",
+						Type: "string",
+					},
 				},
 			},
 			out: "do(ctxt context.Context, a string) (string, error)",
+		},
+		{
+			name: "no return value",
+			in: truce.Function{
+				Name: "do",
+				Arguments: []truce.Field{
+					{Name: "a", Type: "string"},
+				},
+			},
+			out: "do(ctxt context.Context, a string) (error)",
 		},
 	}
 	for _, tc := range testcases {
