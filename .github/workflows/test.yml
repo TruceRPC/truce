@@ -14,8 +14,8 @@ jobs:
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
         with:
-          stable: false
-          go-version: 1.16.0-rc1
+          stable: true
+          go-version: 1.16
       - name: Lint
         continue-on-error: true # TODO: Remove when 1.16 linting starts passing.
         run: |
