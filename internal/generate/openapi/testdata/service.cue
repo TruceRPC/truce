@@ -25,20 +25,7 @@ outputs:
 	"example": "1": {
 		openapi: {
 			version: 3
-			path:    "example/swagger.json"
-		}
-		go: {
-			types: {path: "example/types.go", pkg: "example"}
-			server: {
-				path: "example/server.go"
-				type: "Server"
-				pkg:  "example"
-			}
-			client: {
-				path: "example/client.go"
-				type: "Client"
-				pkg:  "example"
-			}
+			path:    "swagger.json"
 		}
 	}
 

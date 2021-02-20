@@ -8,7 +8,7 @@ build: fmt ## Build truce into bin folder
 	@$(GO) build -o bin/truce ./cmd/truce/...
 
 .PHONY: install
-install: trucegen ## Install truce globally
+install: ## Install truce globally
 	$(GO) install ./cmd/truce/...
 
 .PHONY: test
