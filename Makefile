@@ -1,14 +1,14 @@
-GO ?= go1.16rc1
+GO ?= go1.16
 export GO
 
 .PHONY: build
-build: trucegen ## Build truce into bin folder
+build: fmt ## Build truce into bin folder
 	@mkdir -p bin
 	@echo "Building Truce from source."
 	@$(GO) build -o bin/truce ./cmd/truce/...
 
 .PHONY: install
-install: trucegen ## Install truce globally
+install: ## Install truce globally
 	$(GO) install ./cmd/truce/...
 
 .PHONY: test
@@ -17,16 +17,11 @@ test: build
 
 .PHONY: fmt
 fmt: deps ## Run go fmt -s and cue fmt all over the shop
-	@cue fmt truce.cue
+	@cue fmt ./cue/...
 	@gofmt -s -w $(shell find . -name "*.go")
 
-.PHONY: trucegen
-trucegen: fmt ## Generate truce specification
-	@echo "Generating embedded truce.go definitions."
-	@$(GO) run internal/cmd/trucegen/main.go
-
 require-buildtools:
-	@$(GO) version >/dev/null || (echo "Go 1.16beta1 is currently required. Try 'make install-go'." && exit 2)
+	@$(GO) version >/dev/null || (echo "${GO} is currently required. Try 'make install-go'." && exit 2)
 
 .PHONY: install-go
 install-go: ## Install latest beta version of Go (requires a stable version of Go).
@@ -40,7 +35,7 @@ deps: require-buildtools ## Download dependencies
 	@$(GO) mod tidy
 
 .PHONY: examplegen ## Re-generate example project
-examplegen: cleanExample trucegen build ## generate example directory cue services
+examplegen: cleanExample build ## generate example directory cue services
 	@bin/truce gen example/service.cue
 
 # http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html

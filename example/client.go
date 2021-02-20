@@ -32,319 +32,425 @@ func NewClient(host string) (*Client, error) {
 	return &Client{client: http.DefaultClient, host: u}, nil
 }
 
-func (_c *Client) GetPost(ctxt context.Context, id string) (Post, error) {
-	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", id))
-	if _err != nil {
-		return Post{}, _err
+func (c *Client) DeletePost(ctxt context.Context, id string) error {
+	return c.deletePost(ctxt, id)
+}
+
+func (c *Client) deletePost(ctxt context.Context, v0 string) error {
+	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", v0))
+	if err != nil {
+		return err
 	}
 
 	var (
-		_body io.Reader
-		_resp *http.Response
+		body io.Reader
+		resp *http.Response
 	)
 
-	_req, _err := http.NewRequest("GET", _u.String(), _body)
-	if _err != nil {
-		return Post{}, _err
+	req, err := http.NewRequest("DELETE", u.String(), body)
+	if err != nil {
+		return err
 	}
 
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return Post{}, _err
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return err
 	}
 
 	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
 	}()
 
-	if _err = _checkResponse(_resp); _err != nil {
-		return Post{}, _err
+	if err = checkResponse(resp); err != nil {
+		return err
 	}
 
-	var _rtn Post
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+	return nil
 }
 
-func (_c *Client) GetPosts(ctxt context.Context, limit int64) ([]Post, error) {
-	_u, _err := _c.host.Parse("/api/v1/posts")
-	if _err != nil {
-		return nil, _err
-	}
-
-	_query := _u.Query()
-	_query.Set("limit", fmt.Sprintf("%v", limit))
-	_u.RawQuery = _query.Encode()
-
-	var (
-		_body io.Reader
-		_resp *http.Response
-	)
-
-	_req, _err := http.NewRequest("GET", _u.String(), _body)
-	if _err != nil {
-		return nil, _err
-	}
-
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return nil, _err
-	}
-
-	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
-	}()
-
-	if _err = _checkResponse(_resp); _err != nil {
-		return nil, _err
-	}
-
-	var _rtn []Post
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+func (c *Client) DeleteUser(ctxt context.Context, id string) error {
+	return c.deleteUser(ctxt, id)
 }
 
-func (_c *Client) GetUser(ctxt context.Context, id string) (User, error) {
-	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/users/%v", id))
-	if _err != nil {
-		return User{}, _err
+func (c *Client) deleteUser(ctxt context.Context, v0 string) error {
+	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users/%v", v0))
+	if err != nil {
+		return err
 	}
 
 	var (
-		_body io.Reader
-		_resp *http.Response
+		body io.Reader
+		resp *http.Response
 	)
 
-	_req, _err := http.NewRequest("GET", _u.String(), _body)
-	if _err != nil {
-		return User{}, _err
+	req, err := http.NewRequest("DELETE", u.String(), body)
+	if err != nil {
+		return err
 	}
 
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return User{}, _err
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return err
 	}
 
 	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
 	}()
 
-	if _err = _checkResponse(_resp); _err != nil {
-		return User{}, _err
+	if err = checkResponse(resp); err != nil {
+		return err
 	}
 
-	var _rtn User
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+	return nil
 }
 
-func (_c *Client) GetUsers(ctxt context.Context, limit int64) ([]User, error) {
-	_u, _err := _c.host.Parse("/api/v1/users")
-	if _err != nil {
-		return nil, _err
-	}
-
-	_query := _u.Query()
-	_query.Set("limit", fmt.Sprintf("%v", limit))
-	_u.RawQuery = _query.Encode()
-
-	var (
-		_body io.Reader
-		_resp *http.Response
-	)
-
-	_req, _err := http.NewRequest("GET", _u.String(), _body)
-	if _err != nil {
-		return nil, _err
-	}
-
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return nil, _err
-	}
-
-	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
-	}()
-
-	if _err = _checkResponse(_resp); _err != nil {
-		return nil, _err
-	}
-
-	var _rtn []User
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+func (c *Client) GetPost(ctxt context.Context, id string) (Post, error) {
+	return c.getPost(ctxt, id)
 }
 
-func (_c *Client) PatchPost(ctxt context.Context, id string, post PatchPostRequest) (Post, error) {
-	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", id))
-	if _err != nil {
-		return Post{}, _err
+func (c *Client) getPost(ctxt context.Context, v0 string) (Post, error) {
+	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", v0))
+	if err != nil {
+		return Post{}, err
 	}
 
 	var (
-		_body io.Reader
-		_resp *http.Response
+		body io.Reader
+		resp *http.Response
 	)
 
-	_buf := &bytes.Buffer{}
-	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(post); _err != nil {
-		return Post{}, _err
+	req, err := http.NewRequest("GET", u.String(), body)
+	if err != nil {
+		return Post{}, err
 	}
 
-	_req, _err := http.NewRequest("PATCH", _u.String(), _body)
-	if _err != nil {
-		return Post{}, _err
-	}
-
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return Post{}, _err
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return Post{}, err
 	}
 
 	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
 	}()
 
-	if _err = _checkResponse(_resp); _err != nil {
-		return Post{}, _err
+	if err = checkResponse(resp); err != nil {
+		return Post{}, err
 	}
 
-	var _rtn Post
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+	var rtn Post
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
 }
 
-func (_c *Client) PatchUser(ctxt context.Context, id string, user PatchUserRequest) (User, error) {
-	_u, _err := _c.host.Parse(fmt.Sprintf("/api/v1/users/%v", id))
-	if _err != nil {
-		return User{}, _err
+func (c *Client) GetPosts(ctxt context.Context, limit int64) ([]Post, error) {
+	return c.getPosts(ctxt, limit)
+}
+
+func (c *Client) getPosts(ctxt context.Context, v0 int64) ([]Post, error) {
+	u, err := c.host.Parse("/api/v1/posts")
+	if err != nil {
+		return nil, err
+	}
+
+	query := u.Query()
+	query.Set("limit", fmt.Sprintf("%v", v0))
+	u.RawQuery = query.Encode()
+
+	var (
+		body io.Reader
+		resp *http.Response
+	)
+
+	req, err := http.NewRequest("GET", u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
+	}()
+
+	if err = checkResponse(resp); err != nil {
+		return nil, err
+	}
+
+	var rtn []Post
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
+}
+
+func (c *Client) GetUser(ctxt context.Context, id string) (User, error) {
+	return c.getUser(ctxt, id)
+}
+
+func (c *Client) getUser(ctxt context.Context, v0 string) (User, error) {
+	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users/%v", v0))
+	if err != nil {
+		return User{}, err
 	}
 
 	var (
-		_body io.Reader
-		_resp *http.Response
+		body io.Reader
+		resp *http.Response
 	)
 
-	_buf := &bytes.Buffer{}
-	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(user); _err != nil {
-		return User{}, _err
+	req, err := http.NewRequest("GET", u.String(), body)
+	if err != nil {
+		return User{}, err
 	}
 
-	_req, _err := http.NewRequest("PATCH", _u.String(), _body)
-	if _err != nil {
-		return User{}, _err
-	}
-
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return User{}, _err
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return User{}, err
 	}
 
 	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
 	}()
 
-	if _err = _checkResponse(_resp); _err != nil {
-		return User{}, _err
+	if err = checkResponse(resp); err != nil {
+		return User{}, err
 	}
 
-	var _rtn User
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+	var rtn User
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
 }
 
-func (_c *Client) PutPost(ctxt context.Context, post PutPostRequest) (Post, error) {
-	_u, _err := _c.host.Parse("/api/v1/posts")
-	if _err != nil {
-		return Post{}, _err
+func (c *Client) GetUsers(ctxt context.Context, limit int64) ([]User, error) {
+	return c.getUsers(ctxt, limit)
+}
+
+func (c *Client) getUsers(ctxt context.Context, v0 int64) ([]User, error) {
+	u, err := c.host.Parse("/api/v1/users")
+	if err != nil {
+		return nil, err
+	}
+
+	query := u.Query()
+	query.Set("limit", fmt.Sprintf("%v", v0))
+	u.RawQuery = query.Encode()
+
+	var (
+		body io.Reader
+		resp *http.Response
+	)
+
+	req, err := http.NewRequest("GET", u.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
+	}()
+
+	if err = checkResponse(resp); err != nil {
+		return nil, err
+	}
+
+	var rtn []User
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
+}
+
+func (c *Client) PatchPost(ctxt context.Context, id string, post PatchPostRequest) (Post, error) {
+	return c.patchPost(ctxt, id, post)
+}
+
+func (c *Client) patchPost(ctxt context.Context, v0 string, v1 PatchPostRequest) (Post, error) {
+	u, err := c.host.Parse(fmt.Sprintf("/api/v1/posts/%v", v0))
+	if err != nil {
+		return Post{}, err
 	}
 
 	var (
-		_body io.Reader
-		_resp *http.Response
+		body io.Reader
+		resp *http.Response
 	)
 
-	_buf := &bytes.Buffer{}
-	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(post); _err != nil {
-		return Post{}, _err
+	buf := &bytes.Buffer{}
+	body = buf
+	if err = json.NewEncoder(buf).Encode(v1); err != nil {
+		return Post{}, err
 	}
 
-	_req, _err := http.NewRequest("PUT", _u.String(), _body)
-	if _err != nil {
-		return Post{}, _err
+	req, err := http.NewRequest("PATCH", u.String(), body)
+	if err != nil {
+		return Post{}, err
 	}
 
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return Post{}, _err
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return Post{}, err
 	}
 
 	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
 	}()
 
-	if _err = _checkResponse(_resp); _err != nil {
-		return Post{}, _err
+	if err = checkResponse(resp); err != nil {
+		return Post{}, err
 	}
 
-	var _rtn Post
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+	var rtn Post
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
 }
 
-func (_c *Client) PutUser(ctxt context.Context, user PutUserRequest) (User, error) {
-	_u, _err := _c.host.Parse("/api/v1/users")
-	if _err != nil {
-		return User{}, _err
+func (c *Client) PatchUser(ctxt context.Context, id string, user PatchUserRequest) (User, error) {
+	return c.patchUser(ctxt, id, user)
+}
+
+func (c *Client) patchUser(ctxt context.Context, v0 string, v1 PatchUserRequest) (User, error) {
+	u, err := c.host.Parse(fmt.Sprintf("/api/v1/users/%v", v0))
+	if err != nil {
+		return User{}, err
 	}
 
 	var (
-		_body io.Reader
-		_resp *http.Response
+		body io.Reader
+		resp *http.Response
 	)
 
-	_buf := &bytes.Buffer{}
-	_body = _buf
-	if _err = json.NewEncoder(_buf).Encode(user); _err != nil {
-		return User{}, _err
+	buf := &bytes.Buffer{}
+	body = buf
+	if err = json.NewEncoder(buf).Encode(v1); err != nil {
+		return User{}, err
 	}
 
-	_req, _err := http.NewRequest("PUT", _u.String(), _body)
-	if _err != nil {
-		return User{}, _err
+	req, err := http.NewRequest("PATCH", u.String(), body)
+	if err != nil {
+		return User{}, err
 	}
 
-	_resp, _err = _c.client.Do(_req.WithContext(ctxt))
-	if _err != nil {
-		return User{}, _err
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return User{}, err
 	}
 
 	defer func() {
-		_, _ = io.Copy(ioutil.Discard, _resp.Body)
-		_ = _resp.Body.Close()
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
 	}()
 
-	if _err = _checkResponse(_resp); _err != nil {
-		return User{}, _err
+	if err = checkResponse(resp); err != nil {
+		return User{}, err
 	}
 
-	var _rtn User
-	_err = json.NewDecoder(_resp.Body).Decode(&_rtn)
-	return _rtn, _err
+	var rtn User
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
 }
 
-func _checkResponse(resp *http.Response) error {
+func (c *Client) PutPost(ctxt context.Context, post PutPostRequest) (Post, error) {
+	return c.putPost(ctxt, post)
+}
+
+func (c *Client) putPost(ctxt context.Context, v0 PutPostRequest) (Post, error) {
+	u, err := c.host.Parse("/api/v1/posts")
+	if err != nil {
+		return Post{}, err
+	}
+
+	var (
+		body io.Reader
+		resp *http.Response
+	)
+
+	buf := &bytes.Buffer{}
+	body = buf
+	if err = json.NewEncoder(buf).Encode(v0); err != nil {
+		return Post{}, err
+	}
+
+	req, err := http.NewRequest("PUT", u.String(), body)
+	if err != nil {
+		return Post{}, err
+	}
+
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return Post{}, err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
+	}()
+
+	if err = checkResponse(resp); err != nil {
+		return Post{}, err
+	}
+
+	var rtn Post
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
+}
+
+func (c *Client) PutUser(ctxt context.Context, user PutUserRequest) (User, error) {
+	return c.putUser(ctxt, user)
+}
+
+func (c *Client) putUser(ctxt context.Context, v0 PutUserRequest) (User, error) {
+	u, err := c.host.Parse("/api/v1/users")
+	if err != nil {
+		return User{}, err
+	}
+
+	var (
+		body io.Reader
+		resp *http.Response
+	)
+
+	buf := &bytes.Buffer{}
+	body = buf
+	if err = json.NewEncoder(buf).Encode(v0); err != nil {
+		return User{}, err
+	}
+
+	req, err := http.NewRequest("PUT", u.String(), body)
+	if err != nil {
+		return User{}, err
+	}
+
+	resp, err = c.client.Do(req.WithContext(ctxt))
+	if err != nil {
+		return User{}, err
+	}
+
+	defer func() {
+		_, _ = io.Copy(ioutil.Discard, resp.Body)
+		_ = resp.Body.Close()
+	}()
+
+	if err = checkResponse(resp); err != nil {
+		return User{}, err
+	}
+
+	var rtn User
+	err = json.NewDecoder(resp.Body).Decode(&rtn)
+	return rtn, err
+}
+
+func checkResponse(resp *http.Response) error {
 	switch resp.StatusCode {
 	case http.StatusOK:
 		return nil
