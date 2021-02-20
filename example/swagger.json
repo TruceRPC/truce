@@ -6,50 +6,6 @@
     },
     "components": {
         "schemas": {
-            "Post": {
-                "type": "object",
-                "properties": {
-                    "body": {
-                        "type": "string",
-                        "format": "base64"
-                    },
-                    "title": {
-                        "type": "string"
-                    },
-                    "draft": {
-                        "type": "boolean"
-                    },
-                    "created": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "id": {
-                        "type": "string"
-                    }
-                }
-            },
-            "User": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "age": {
-                        "type": "integer",
-                        "format": "int64"
-                    },
-                    "height": {
-                        "type": "number",
-                        "format": "float"
-                    },
-                    "labels": {
-                        "type": "object"
-                    },
-                    "id": {
-                        "type": "string"
-                    }
-                }
-            },
             "NotAuthorized": {
                 "type": "object",
                 "properties": {
@@ -66,41 +22,25 @@
                     }
                 }
             },
-            "PutPostRequest": {
+            "User": {
                 "type": "object",
                 "properties": {
-                    "body": {
-                        "type": "string",
-                        "format": "base64"
-                    },
-                    "title": {
+                    "id": {
                         "type": "string"
                     },
-                    "draft": {
-                        "type": "boolean"
-                    },
-                    "created": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                }
-            },
-            "PatchPostRequest": {
-                "type": "object",
-                "properties": {
-                    "body": {
-                        "type": "string",
-                        "format": "base64"
-                    },
-                    "title": {
+                    "name": {
                         "type": "string"
                     },
-                    "draft": {
-                        "type": "boolean"
+                    "age": {
+                        "type": "integer",
+                        "format": "int64"
                     },
-                    "created": {
-                        "type": "string",
-                        "format": "date-time"
+                    "height": {
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "labels": {
+                        "type": "object"
                     }
                 }
             },
@@ -141,133 +81,84 @@
                         "type": "object"
                     }
                 }
+            },
+            "Post": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string",
+                        "format": "base64"
+                    },
+                    "draft": {
+                        "type": "boolean"
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PutPostRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string",
+                        "format": "base64"
+                    },
+                    "draft": {
+                        "type": "boolean"
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PatchPostRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string",
+                        "format": "base64"
+                    },
+                    "draft": {
+                        "type": "boolean"
+                    },
+                    "created": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
             }
         }
     },
     "paths": {
-        "/posts/{id}": {
-            "get": {
-                "operationId": "GetPost",
-                "responses": {
-                    "200": {
-                        "description": "GetPost operation 200 response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Post"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true
-                    }
-                ]
-            },
-            "patch": {
-                "operationId": "PatchPost",
-                "responses": {
-                    "200": {
-                        "description": "PatchPost operation 200 response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Post"
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true
-                    }
-                ],
-                "requestBody": {
-                    "description": "PatchPost operation request body",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PatchPostRequest"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/posts": {
-            "get": {
-                "operationId": "GetPosts",
-                "responses": {
-                    "200": {
-                        "description": "GetPosts operation 200 response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/Post"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "limit",
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        },
-                        "in": "query",
-                        "description": "limit from query"
-                    }
-                ]
-            },
-            "put": {
-                "operationId": "PutPost",
-                "responses": {
-                    "200": {
-                        "description": "PutPost operation 200 response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Post"
-                                }
-                            }
-                        }
-                    }
-                },
-                "requestBody": {
-                    "description": "PutPost operation request body",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/PutPostRequest"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/users/{id}": {
             "get": {
                 "operationId": "GetUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "GetUser operation 200 response",
@@ -279,42 +170,19 @@
                             }
                         }
                     }
-                },
-                "parameters": [
-                    {
-                        "name": "id",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "path",
-                        "description": "id from path",
-                        "required": true
-                    }
-                ]
+                }
             },
             "patch": {
                 "operationId": "PatchUser",
-                "responses": {
-                    "200": {
-                        "description": "PatchUser operation 200 response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
-                    }
-                },
                 "parameters": [
                     {
                         "name": "id",
-                        "schema": {
-                            "type": "string"
-                        },
                         "in": "path",
                         "description": "id from path",
-                        "required": true
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -326,12 +194,54 @@
                             }
                         }
                     }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PatchUser operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "DeleteUser",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "DeleteUser operation 200 response"
+                    }
                 }
             }
         },
         "/users": {
             "get": {
                 "operationId": "GetUsers",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "limit from query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "GetUsers operation 200 response",
@@ -346,21 +256,20 @@
                             }
                         }
                     }
-                },
-                "parameters": [
-                    {
-                        "name": "limit",
-                        "schema": {
-                            "type": "integer",
-                            "format": "int64"
-                        },
-                        "in": "query",
-                        "description": "limit from query"
-                    }
-                ]
+                }
             },
             "put": {
                 "operationId": "PutUser",
+                "requestBody": {
+                    "description": "PutUser operation request body",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PutUserRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "PutUser operation 200 response",
@@ -372,13 +281,142 @@
                             }
                         }
                     }
-                },
+                }
+            }
+        },
+        "/posts/{id}": {
+            "get": {
+                "operationId": "GetPost",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GetPost operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "PatchPost",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "requestBody": {
-                    "description": "PutUser operation request body",
+                    "description": "PatchPost operation request body",
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PutUserRequest"
+                                "$ref": "#/components/schemas/PatchPostRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PatchPost operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "DeletePost",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id from path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "DeletePost operation 200 response"
+                    }
+                }
+            }
+        },
+        "/posts": {
+            "get": {
+                "operationId": "GetPosts",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "limit from query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "GetPosts operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Post"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "PutPost",
+                "requestBody": {
+                    "description": "PutPost operation request body",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PutPostRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "PutPost operation 200 response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Post"
+                                }
                             }
                         }
                     }

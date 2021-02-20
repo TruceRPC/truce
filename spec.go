@@ -4,8 +4,6 @@ import (
 	"cuelang.org/go/cue"
 )
 
-var Runtime = &cue.Runtime{}
-
 type Specification struct {
 	Outputs        map[string]map[string]Output `cue:"outputs"`
 	Specifications map[string]map[string]API    `cue:"specifications"`
@@ -17,7 +15,7 @@ func Compile(data []byte) (cue.Value, error) {
 		return cue.Value{}, err
 	}
 
-	filled, err := cuegenInstance.Fill(target.Value())
+	filled, err := Instance.Fill(target.Value())
 	if err != nil {
 		return cue.Value{}, err
 	}

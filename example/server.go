@@ -16,6 +16,8 @@ var _ = time.After
 var _ = strconv.Itoa
 
 type Service interface {
+	DeletePost(ctxt context.Context, id string) error
+	DeleteUser(ctxt context.Context, id string) error
 	GetPost(ctxt context.Context, id string) (Post, error)
 	GetPosts(ctxt context.Context, limit int64) ([]Post, error)
 	GetUser(ctxt context.Context, id string) (User, error)
@@ -37,6 +39,8 @@ func NewServer(srv Service) *Server {
 		srv:    srv,
 	}
 
+	s.Router.Delete("/api/v1/posts/{id}", s.handleDeletePost)
+	s.Router.Delete("/api/v1/users/{id}", s.handleDeleteUser)
 	s.Router.Get("/api/v1/posts/{id}", s.handleGetPost)
 	s.Router.Get("/api/v1/posts", s.handleGetPosts)
 	s.Router.Get("/api/v1/users/{id}", s.handleGetUser)
@@ -49,9 +53,45 @@ func NewServer(srv Service) *Server {
 	return s
 }
 
+func (c *Server) handleDeletePost(w http.ResponseWriter, r *http.Request) {
+
+	v0 := chi.URLParam(r, "id")
+
+	r0, err := c.srv.DeletePost(r.Context(), v0)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(r0); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	return
+}
+
+func (c *Server) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
+
+	v0 := chi.URLParam(r, "id")
+
+	r0, err := c.srv.DeleteUser(r.Context(), v0)
+	if err != nil {
+		handleError(w, err)
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(r0); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	return
+}
+
 func (c *Server) handleGetPost(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	r0, err := c.srv.GetPost(r.Context(), id)
+
+	v0 := chi.URLParam(r, "id")
+
+	r0, err := c.srv.GetPost(r.Context(), v0)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -65,12 +105,14 @@ func (c *Server) handleGetPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handleGetPosts(w http.ResponseWriter, r *http.Request) {
+
 	q0 := r.URL.Query().Get("limit")
-	limit, err := strconv.ParseInt(q0, 10, 64)
+	v0, err := strconv.ParseInt(q0, 10, 64)
 	if err != nil {
 		return
 	}
-	r0, err := c.srv.GetPosts(r.Context(), limit)
+
+	r0, err := c.srv.GetPosts(r.Context(), v0)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -84,8 +126,10 @@ func (c *Server) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	r0, err := c.srv.GetUser(r.Context(), id)
+
+	v0 := chi.URLParam(r, "id")
+
+	r0, err := c.srv.GetUser(r.Context(), v0)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -99,12 +143,14 @@ func (c *Server) handleGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
+
 	q0 := r.URL.Query().Get("limit")
-	limit, err := strconv.ParseInt(q0, 10, 64)
+	v0, err := strconv.ParseInt(q0, 10, 64)
 	if err != nil {
 		return
 	}
-	r0, err := c.srv.GetUsers(r.Context(), limit)
+
+	r0, err := c.srv.GetUsers(r.Context(), v0)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -118,14 +164,16 @@ func (c *Server) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handlePatchPost(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	var post PatchPostRequest
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
+
+	v0 := chi.URLParam(r, "id")
+
+	var v1 PatchPostRequest
+	if err := json.NewDecoder(r.Body).Decode(&v1); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	r0, err := c.srv.PatchPost(r.Context(), id, post)
+	r0, err := c.srv.PatchPost(r.Context(), v0, v1)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -139,14 +187,16 @@ func (c *Server) handlePatchPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handlePatchUser(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	var user PatchUserRequest
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+
+	v0 := chi.URLParam(r, "id")
+
+	var v1 PatchUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&v1); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	r0, err := c.srv.PatchUser(r.Context(), id, user)
+	r0, err := c.srv.PatchUser(r.Context(), v0, v1)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -160,13 +210,14 @@ func (c *Server) handlePatchUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handlePutPost(w http.ResponseWriter, r *http.Request) {
-	var post PutPostRequest
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
+
+	var v0 PutPostRequest
+	if err := json.NewDecoder(r.Body).Decode(&v0); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	r0, err := c.srv.PutPost(r.Context(), post)
+	r0, err := c.srv.PutPost(r.Context(), v0)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -180,13 +231,14 @@ func (c *Server) handlePutPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Server) handlePutUser(w http.ResponseWriter, r *http.Request) {
-	var user PutUserRequest
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+
+	var v0 PutUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&v0); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	r0, err := c.srv.PutUser(r.Context(), user)
+	r0, err := c.srv.PutUser(r.Context(), v0)
 	if err != nil {
 		handleError(w, err)
 		return
