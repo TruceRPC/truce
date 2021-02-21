@@ -1,13 +1,12 @@
 package truce
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+
 	"cuelang.org/go/cue"
 )
-
-type Specification struct {
-	Outputs        map[string]map[string]Output `cue:"outputs"`
-	Specifications map[string]map[string]API    `cue:"specifications"`
-}
 
 func Compile(data []byte) (cue.Value, error) {
 	target, err := Runtime.Compile("target", data)
@@ -25,11 +24,46 @@ func Compile(data []byte) (cue.Value, error) {
 	return val, val.Err()
 }
 
-type Output struct {
-	Name    string    `cue:"name"`
-	Version string    `cue:"version"`
-	Go      *GoOutput `cue:"go"`
-	OpenAPI *OpenAPI  `cue:"openapi"`
+type Truce struct {
+	Truce map[string]map[string]Definition `cue:"truce"`
+}
+
+func (t *Truce) UnmarshalCUE(data []byte) (err error) {
+	val, err := Compile(data)
+	if err != nil {
+		return err
+	}
+
+	if err := val.Decode(t); err != nil {
+		return err
+	}
+
+	for name, versions := range t.Truce {
+		for version, def := range versions {
+			if oa := def.Outputs.OpenAPI; oa != nil {
+				val := val.Lookup("openapi3", name, version)
+				if err := val.Err(); err != nil {
+					return err
+				}
+
+				oa.raw = val
+			}
+		}
+	}
+
+	return nil
+}
+
+type Definition struct {
+	Outputs Outputs `cue:"outputs"`
+	Spec    API     `cue:"spec"`
+}
+
+type Outputs struct {
+	Name    string         `cue:"name"`
+	Version string         `cue:"version"`
+	Go      *GoOutput      `cue:"go"`
+	OpenAPI *OpenAPIOutput `cue:"openapi"`
 }
 
 type GoOutput struct {
@@ -38,8 +72,24 @@ type GoOutput struct {
 	Client *TypedTarget `cue:"client"`
 }
 
-type OpenAPI struct {
+type OpenAPIOutput struct {
 	Path string `cue:"path"`
+	raw  cue.Value
+}
+
+func (o OpenAPIOutput) MarshalJSON(w io.Writer) error {
+	data, err := o.raw.MarshalJSON()
+	if err != nil {
+		return err
+	}
+
+	buf := &bytes.Buffer{}
+	if err := json.Indent(buf, data, "", "    "); err != nil {
+		return err
+	}
+
+	_, err = buf.WriteTo(w)
+	return err
 }
 
 type Target struct {

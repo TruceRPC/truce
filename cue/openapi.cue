@@ -93,7 +93,7 @@ _#schemaObj: [_=string]: {
 }
 
 openapi3: {
-	for apiName, apiVersions in specifications {
+	for apiName, apiVersions in truce {
 		for apiVersion, apiDef in apiVersions {
 			"\(apiName)": "\(apiVersion)": {
 				openapi: "3.0.3"
@@ -103,7 +103,7 @@ openapi3: {
 				}
 				components: {
 					schemas: {
-						for typeName, typeDef in apiDef.types {
+						for typeName, typeDef in apiDef.spec.types {
 							"\(typeName)": {
 								type: "object"
 								properties: {
@@ -117,26 +117,25 @@ openapi3: {
 					}
 				}
 				paths: {
-					for fnName, fnDef in apiDef.functions {
+					for fnName, fnDef in apiDef.spec.functions {
 						let httpFn = fnDef.transports.http
 						"\(httpFn.path)": {
 							"\(strings.ToLower(httpFn.method))": {
 								operationId: fnName
 								// request parameters
 								_parameters: [
-									for argDef in fnDef.arguments {
-										let fnArg = fnDef.transports.http.arguments[argDef.name]
+									for argDef in fnDef.arguments
+									let fnArg = fnDef.transports.http.arguments[argDef.name]
+									if fnArg != null && fnArg.from != "" && fnArg.from != "body" {
 										let schemaObj = _#schemaObj & {schema: {_type: argDef.type}}
-										if fnArg != null && fnArg.from != "" && fnArg.from != "body" {
-											{
-												name:        argDef.name
-												in:          fnArg.from
-												description: "\(argDef.name) from \(fnArg.from)"
-												if fnArg.from == "path" {
-													required: true
-												}
-												schema: schemaObj.schema
+										{
+											name:        argDef.name
+											in:          fnArg.from
+											description: "\(argDef.name) from \(fnArg.from)"
+											if fnArg.from == "path" {
+												required: true
 											}
+											schema: schemaObj.schema
 										}
 									},
 								]
@@ -147,11 +146,10 @@ openapi3: {
 
 								// request body
 								_body: {
-									for argDef in fnDef.arguments {
-										let fnArg = fnDef.transports.http.arguments[argDef.name]
-										if fnArg != null && fnArg.from == "body" {
-											_#schemaObj & {schema: {_type: argDef.type}}
-										}
+									for argDef in fnDef.arguments
+									let fnArg = fnDef.transports.http.arguments[argDef.name]
+									if fnArg != null && fnArg.from == "body" {
+										_#schemaObj & {schema: {_type: argDef.type}}
 									}
 								}
 								if len(_body) > 0 {

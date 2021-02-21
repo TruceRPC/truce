@@ -21,8 +21,8 @@ import "strings"
 	}
 }
 
-outputs:
-	"example": "1": {
+truce: "example": "1": {
+	outputs: {
 		go: {
 			types: {
 				path: "types.go.golden"
@@ -40,9 +40,7 @@ outputs:
 			}
 		}
 	}
-
-specifications: {
-	"example": "1": {
+	spec: {
 		transports: {
 			http: {
 				versions: ["1.0", "1.1", "2.0"]

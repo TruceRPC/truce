@@ -1,11 +1,16 @@
 package truce
 
-outputs: [n=string]: [v=string]: {
-		name:       string
-		version:    =~"^[0-9]+$"
-		go?:        #GoOutput
-		openapi?:   #OpenAPIOutput
-} & {name: n, version: v}
+truce: [n=string]: [v=string]: {
+	spec:    #API & {name:    n, version: v}
+	outputs: #Output & {name: n, version: v}
+}
+
+#Output: {
+	name:     string
+	version:  =~"^[0-9]+$"
+	go?:      #GoOutput
+	openapi?: #OpenAPIOutput
+}
 
 #GoOutput: {
 	types?:  #Target
@@ -27,8 +32,6 @@ outputs: [n=string]: [v=string]: {
 	path: string | *"<stdout>"
 	pkg:  string | *"types"
 }
-
-specifications: [n=string]: [v=string]: #API & {name: n, version: v}
 
 #API: {
 	name:    string

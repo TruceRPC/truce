@@ -6,7 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"cuelang.org/go/cue"
 	"github.com/TruceRPC/truce"
 	"gotest.tools/v3/assert"
 )
@@ -17,13 +16,14 @@ func TestGenerator(t *testing.T) {
 	data, err := fs.ReadFile(testdata, "service.cue")
 	assert.NilError(t, err)
 
-	var val cue.Value
-	val, err = truce.Compile(data)
+	var truce truce.Truce
+
+	err = truce.UnmarshalCUE(data)
 	assert.NilError(t, err)
 
 	t.Run("swagger.json", func(t *testing.T) {
 		actualData := bytes.NewBuffer(nil)
-		err = WriteJSON(actualData, val, "example", "1")
+		err = truce.Truce["example"]["1"].Outputs.OpenAPI.MarshalJSON(actualData)
 		assert.NilError(t, err)
 
 		expectedData, err := fs.ReadFile(testdata, "swagger.json.golden")

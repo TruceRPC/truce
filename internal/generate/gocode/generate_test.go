@@ -6,7 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"cuelang.org/go/cue"
 	"github.com/TruceRPC/truce"
 	"gotest.tools/v3/assert"
 )
@@ -17,21 +16,17 @@ func TestGenerator(t *testing.T) {
 	data, err := fs.ReadFile(testdata, "service.cue")
 	assert.NilError(t, err)
 
-	var val cue.Value
-	val, err = truce.Compile(data)
+	var truce truce.Truce
+	err = truce.UnmarshalCUE(data)
 	assert.NilError(t, err)
 
-	var spec truce.Specification
-	err = val.Decode(&spec)
-	assert.NilError(t, err)
-
-	versions, ok := spec.Specifications["example"]
+	versions, ok := truce.Truce["example"]
 	assert.Assert(t, ok)
-	api, ok := versions["1"]
+	def, ok := versions["1"]
 	assert.Assert(t, ok)
 
 	t.Run("types.go", func(t *testing.T) {
-		g, err := New(api)
+		g, err := New(def.Spec)
 		assert.NilError(t, err)
 
 		actualData := bytes.NewBuffer(nil)
@@ -44,7 +39,7 @@ func TestGenerator(t *testing.T) {
 	})
 
 	t.Run("server.go", func(t *testing.T) {
-		g, err := New(api)
+		g, err := New(def.Spec)
 		assert.NilError(t, err)
 
 		actualData := bytes.NewBuffer(nil)
@@ -59,7 +54,7 @@ func TestGenerator(t *testing.T) {
 	})
 
 	t.Run("client.go", func(t *testing.T) {
-		g, err := New(api)
+		g, err := New(def.Spec)
 		assert.NilError(t, err)
 
 		actualData := bytes.NewBuffer(nil)
